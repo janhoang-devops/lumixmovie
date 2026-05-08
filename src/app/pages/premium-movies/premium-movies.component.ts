@@ -98,17 +98,17 @@ export class PremiumMoviesComponent implements OnInit {
 
   confirmPayment(): void {
     if (!this.selectedMovie) return;
-    // const userId = this.authService.getUserId();
-    // if (!userId) {
-    //   this.notification.show('Phiên đăng nhập đã hết hạn!', 'error');
-    //   return;
-    // }
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.notification.show('Phiên đăng nhập đã hết hạn!', 'error');
+      return;
+    }
 
     this.paymentLoading = true;
     this.paymentService.createPayment({
       amount: this.selectedMoviePrice,
       orderInfo: `Mua phim: ${this.selectedMovie.title}`,
-      userId: '',
+      userId: userId,
       movieId: this.selectedMovie.id
     }).subscribe({
       next: (payment) => {

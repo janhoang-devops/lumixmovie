@@ -13,7 +13,7 @@ const MOVIE_PRICES: { [key: string]: number } = {};
 function getPriceForMovie(movie: Movie): number {
   // Gán giá ngẫu nhiên nhưng ổn định dựa theo hash của id
   if (MOVIE_PRICES[movie.id]) return MOVIE_PRICES[movie.id];
-  const prices = [29000, 39000, 49000, 59000, 79000];
+  const prices = [1000,2000,3000,4000,5000,6000];
   let hash = 0;
   for (let i = 0; i < movie.id.length; i++) {
     hash = (hash << 5) - hash + movie.id.charCodeAt(i);
@@ -129,12 +129,12 @@ export class PremiumMoviesComponent implements OnInit {
     if (this.currentPayment?.payUrl) {
       // Sử dụng payUrl vì đây là link thông minh, tự động chuyển hướng app trên mobile và hiện QR trên desktop
       const targetUrl = this.currentPayment.payUrl;
-      
+
       console.log('Redirecting to MoMo:', targetUrl);
 
       // Thử mở trong tab mới
       const win = window.open(targetUrl, '_blank');
-      
+
       // Nếu trình duyệt chặn popup, điều hướng trực tiếp ở tab hiện tại
       if (!win || win.closed || typeof win.closed === 'undefined') {
         window.location.href = targetUrl;

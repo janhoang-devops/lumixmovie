@@ -16,7 +16,7 @@ export class PaymentService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Tạo phiên thanh toán MoMo
+   * Tạo phiên thanh toán MoMo cho gói hội viên Premium
    * POST /api/momo/create
    */
   createPayment(request: CreatePaymentRequest): Observable<PaymentResponse> {
@@ -43,7 +43,7 @@ export class PaymentService {
   }
 
   /**
-   * [DEV ONLY] Giả lập thanh toán thành công - bypass signature check
+   * [DEV ONLY] Giả lập thanh toán thành công
    * POST /api/momo/dev/simulate/{orderId}
    */
   simulatePaymentSuccess(orderId: string): Observable<PaymentResponse> {

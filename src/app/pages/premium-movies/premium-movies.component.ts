@@ -1,50 +1,45 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { MovieService } from '../../services/movie.service';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { NotificationService } from '../../services/notification.service';
-import { PaymentResponse, PaymentStatus } from '../../models/payment.model';
-
-// Giá phim tĩnh (mô phỏng) theo ID hoặc đặt mặc định
-const MOVIE_PRICES: { [key: string]: number } = {};
-
-function getPriceForMovie(movie: Movie): number {
-  // Gán giá ngẫu nhiên nhưng ổn định dựa theo hash của id
-  if (MOVIE_PRICES[movie.id]) return MOVIE_PRICES[movie.id];
-  const prices = [1000,2000,3000,4000,5000,6000];
-  let hash = 0;
-  for (let i = 0; i < movie.id.length; i++) {
-    hash = (hash << 5) - hash + movie.id.charCodeAt(i);
-    hash |= 0;
-  }
-  MOVIE_PRICES[movie.id] = prices[Math.abs(hash) % prices.length];
-  return MOVIE_PRICES[movie.id];
-}
+import {
+  PaymentResponse,
+  PaymentStatus,
+  PlanType,
+  SubscriptionPlan,
+  SUBSCRIPTION_PLANS
+} from '../../models/payment.model';
 
 @Component({
   selector: 'app-premium-movies',
   templateUrl: './premium-movies.component.html',
   styleUrls: ['./premium-movies.component.scss']
 })
-export class PremiumMoviesComponent implements OnInit {
+export class PremiumMoviesComponent implements OnInit, OnDestroy {
+
+  // ==================== State ====================
   premiumMovies: Movie[] = [];
   loading = true;
   error: string | null = null;
 
+  // Gói hội viên
+  plans: SubscriptionPlan[] = SUBSCRIPTION_PLANS;
+  selectedPlan: SubscriptionPlan | null = null;
+
   // Thanh toán
   showPaymentModal = false;
-  selectedMovie: Movie | null = null;
-  selectedMoviePrice = 0;
   paymentLoading = false;
-  paymentStep: 'confirm' | 'qr' | 'checking' | 'success' | 'failed' = 'confirm';
+  paymentStep: 'confirm' | 'qr' | 'success' | 'failed' = 'confirm';
   currentPayment: PaymentResponse | null = null;
+
   private statusCheckInterval: any;
   private checkCount = 0;
-  private readonly MAX_CHECKS = 60; // 5 phút
+  private readonly MAX_CHECKS = 60;
 
-  getPriceForMovie = getPriceForMovie;
+  readonly PlanType = PlanType;
 
   constructor(
     private movieService: MovieService,
@@ -52,37 +47,45 @@ export class PremiumMoviesComponent implements OnInit {
     private paymentService: PaymentService,
     private notification: NotificationService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadPremiumMovies();
   }
 
+  ngOnDestroy(): void {
+    this.stopStatusCheck();
+  }
+
+  // ==================== Movie Loading ====================
+
   private loadPremiumMovies(): void {
     this.loading = true;
     this.movieService.getAllMovies().subscribe({
       next: (movies) => {
-        // Lấy ngẫu nhiên một subset phim và gán làm "premium"
-        // Trong thực tế: backend sẽ có field isPremium/price
-        const shuffled = [...movies].sort(() => Math.random() - 0.5);
-        this.premiumMovies = shuffled.slice(0, Math.min(12, shuffled.length));
+        // Lấy các phim có isPremium = true, hoặc lấy ngẫu nhiên nếu chưa có field
+        const premiumList = movies.filter(m => m.isPremium);
+        this.premiumMovies = premiumList.length > 0
+          ? premiumList
+          : movies.slice(0, Math.min(12, movies.length));
         this.loading = false;
       },
       error: () => {
-        this.error = 'Không thể tải danh sách phim trả phí. Vui lòng thử lại sau.';
+        this.error = 'Không thể tải danh sách phim. Vui lòng thử lại sau.';
         this.loading = false;
       }
     });
   }
 
-  openPaymentModal(movie: Movie): void {
+  // ==================== Plan Selection ====================
+
+  selectPlan(plan: SubscriptionPlan): void {
     if (!this.authService.isLoggedIn()) {
-      this.notification.show('Vui lòng đăng nhập để mua phim!', 'warning');
+      this.notification.show('Vui lòng đăng nhập để mua gói hội viên!', 'warning');
       this.router.navigate(['/login']);
       return;
     }
-    this.selectedMovie = movie;
-    this.selectedMoviePrice = getPriceForMovie(movie);
+    this.selectedPlan = plan;
     this.paymentStep = 'confirm';
     this.currentPayment = null;
     this.showPaymentModal = true;
@@ -90,14 +93,17 @@ export class PremiumMoviesComponent implements OnInit {
 
   closePaymentModal(): void {
     this.showPaymentModal = false;
-    this.selectedMovie = null;
+    this.selectedPlan = null;
     this.currentPayment = null;
     this.paymentStep = 'confirm';
     this.stopStatusCheck();
   }
 
+  // ==================== Payment ====================
+
   confirmPayment(): void {
-    if (!this.selectedMovie) return;
+    if (!this.selectedPlan) return;
+
     const userId = this.authService.getUserId();
     if (!userId) {
       this.notification.show('Phiên đăng nhập đã hết hạn!', 'error');
@@ -106,16 +112,13 @@ export class PremiumMoviesComponent implements OnInit {
 
     this.paymentLoading = true;
     this.paymentService.createPayment({
-      amount: this.selectedMoviePrice,
-      orderInfo: `Mua phim: ${this.selectedMovie.title}`,
-      userId: userId,
-      movieId: this.selectedMovie.id
+      planType: this.selectedPlan.id,
+      userId: userId
     }).subscribe({
       next: (payment) => {
         this.currentPayment = payment;
         this.paymentStep = 'qr';
         this.paymentLoading = false;
-        // Bắt đầu polling trạng thái
         this.startStatusCheck(payment.orderId);
       },
       error: (err) => {
@@ -127,15 +130,9 @@ export class PremiumMoviesComponent implements OnInit {
 
   openMomoApp(): void {
     if (this.currentPayment?.payUrl) {
-      // Sử dụng payUrl vì đây là link thông minh, tự động chuyển hướng app trên mobile và hiện QR trên desktop
       const targetUrl = this.currentPayment.payUrl;
-
       console.log('Redirecting to MoMo:', targetUrl);
-
-      // Thử mở trong tab mới
       const win = window.open(targetUrl, '_blank');
-
-      // Nếu trình duyệt chặn popup, điều hướng trực tiếp ở tab hiện tại
       if (!win || win.closed || typeof win.closed === 'undefined') {
         window.location.href = targetUrl;
       }
@@ -143,6 +140,8 @@ export class PremiumMoviesComponent implements OnInit {
       this.notification.show('Không tìm thấy liên kết thanh toán MoMo!', 'error');
     }
   }
+
+  // ==================== Status Polling ====================
 
   private startStatusCheck(orderId: string): void {
     this.checkCount = 0;
@@ -160,7 +159,7 @@ export class PremiumMoviesComponent implements OnInit {
             this.stopStatusCheck();
             this.currentPayment = payment;
             this.paymentStep = 'success';
-            this.notification.show('Thanh toán thành công! Chúc bạn xem phim vui vẻ 🎬', 'success');
+            this.notification.show('🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!', 'success');
           } else if (payment.status === PaymentStatus.FAILED) {
             this.stopStatusCheck();
             this.currentPayment = payment;
@@ -168,7 +167,7 @@ export class PremiumMoviesComponent implements OnInit {
             this.notification.show('Thanh toán thất bại. Vui lòng thử lại!', 'error');
           }
         },
-        error: () => { }
+        error: () => {}
       });
     }, 5000);
   }
@@ -180,21 +179,21 @@ export class PremiumMoviesComponent implements OnInit {
     }
   }
 
-  watchMovie(movie: Movie): void {
-    this.closePaymentModal();
-    this.router.navigate(['/movies', movie.id]);
-  }
+  // ==================== Helpers ====================
 
-  retryPayment(): void {
-    this.paymentStep = 'confirm';
-    this.currentPayment = null;
+  getPlanDurationLabel(planType?: PlanType): string {
+    switch (planType) {
+      case PlanType.QUARTERLY: return '3 tháng';
+      case PlanType.YEARLY:    return '1 năm';
+      default:                 return '1 tháng';
+    }
   }
 
   formatPrice(price: number): string {
     return price.toLocaleString('vi-VN') + 'đ';
   }
 
-  ngOnDestroy(): void {
-    this.stopStatusCheck();
+  browsePremiumMovies(): void {
+    this.closePaymentModal();
   }
 }

@@ -2,123 +2,158 @@
 
 <div class="premium-page">
 
-  <!-- Hero Banner -->
+  <!-- ===================== HERO ===================== -->
   <section class="premium-hero">
-    <div class="hero-glow"></div>
+    <div class="hero-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
     <div class="hero-content">
-      <div class="vip-badge">
+      <div class="hero-badge">
         <i class="fas fa-crown"></i>
         <span>LUMIX PREMIUM</span>
       </div>
-      <h1>Phim Trả Phí Độc Quyền</h1>
-      <p>Trải nghiệm kho phim premium chất lượng 4K – Mua một lần, xem mãi mãi</p>
+      <h1 class="hero-title">Trải Nghiệm Không Giới Hạn</h1>
+      <p class="hero-subtitle">Đăng ký gói hội viên để xem toàn bộ kho phim premium chất lượng 4K,
+        không quảng cáo, trên mọi thiết bị</p>
       <div class="hero-stats">
-        <div class="stat">
+        <div class="stat-item">
           <span class="stat-num">{{ premiumMovies.length }}+</span>
-          <span class="stat-label">Phim độc quyền</span>
+          <span class="stat-label">Phim Premium</span>
         </div>
-        <div class="stat">
+        <div class="stat-divider"></div>
+        <div class="stat-item">
           <span class="stat-num">4K</span>
-          <span class="stat-label">Chất lượng hình ảnh</span>
+          <span class="stat-label">Chất lượng</span>
         </div>
-        <div class="stat">
+        <div class="stat-divider"></div>
+        <div class="stat-item">
           <span class="stat-num">∞</span>
-          <span class="stat-label">Xem không giới hạn</span>
+          <span class="stat-label">Không giới hạn</span>
         </div>
       </div>
     </div>
+    <!-- Floating movie posters -->
     <div class="hero-posters" *ngIf="!loading && premiumMovies.length > 0">
       <div class="poster-float" *ngFor="let m of premiumMovies.slice(0, 5); let i = index"
            [style.animation-delay]="(i * 0.4) + 's'">
         <img [src]="m.posterUrl" [alt]="m.title">
+        <div class="poster-overlay"><i class="fas fa-crown"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SUBSCRIPTION PLANS ===================== -->
+  <section class="plans-section">
+    <div class="section-header">
+      <h2><i class="fas fa-gem"></i> Chọn Gói Hội Viên</h2>
+      <p>Thanh toán an toàn qua ví MoMo · Hủy bất cứ lúc nào</p>
+    </div>
+
+    <div class="plans-grid">
+      <div class="plan-card"
+           *ngFor="let plan of plans"
+           [class.popular]="plan.popular"
+           (click)="selectPlan(plan)">
+
+        <!-- Popular badge -->
+        <div class="plan-badge" *ngIf="plan.badge">{{ plan.badge }}</div>
+
+        <div class="plan-icon">
+          <i class="fas" [class.fa-calendar]="plan.id === 'MONTHLY'"
+                         [class.fa-layer-group]="plan.id === 'QUARTERLY'"
+                         [class.fa-crown]="plan.id === 'YEARLY'"></i>
+        </div>
+
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        <p class="plan-duration">{{ plan.duration }}</p>
+
+        <div class="plan-price">
+          <span class="price-amount">{{ formatPrice(plan.price) }}</span>
+          <span class="price-period">/ {{ plan.duration }}</span>
+        </div>
+
+        <ul class="plan-features">
+          <li *ngFor="let f of plan.features">
+            <i class="fas fa-check-circle"></i>
+            {{ f }}
+          </li>
+        </ul>
+
+        <button class="plan-btn" [class.popular-btn]="plan.popular">
+          <i class="fas fa-wallet"></i>
+          Đăng ký ngay
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PREMIUM MOVIES PREVIEW ===================== -->
+  <section class="movies-section" *ngIf="!loading && !error">
+    <div class="section-header">
+      <h2><i class="fas fa-film"></i> Phim Có Sẵn Cho Hội Viên</h2>
+      <p>Đăng ký để xem toàn bộ {{ premiumMovies.length }}+ phim premium dưới đây</p>
+    </div>
+
+    <div class="movies-grid">
+      <div class="movie-card" *ngFor="let movie of premiumMovies">
+        <div class="card-poster">
+          <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy">
+          <div class="card-overlay">
+            <div class="overlay-lock">
+              <i class="fas fa-lock"></i>
+              <span>Hội Viên Premium</span>
+            </div>
+          </div>
+          <div class="badge-vip"><i class="fas fa-crown"></i> VIP</div>
+          <div class="badge-rating" *ngIf="movie.rating">
+            <i class="fas fa-star"></i> {{ movie.rating }}
+          </div>
+        </div>
+        <div class="card-info">
+          <h3 class="card-title">{{ movie.title }}</h3>
+          <div class="card-meta">
+            <span class="year">{{ movie.year }}</span>
+            <span class="dot" *ngIf="movie.duration">•</span>
+            <span class="duration">{{ movie.duration }}</span>
+            <span class="dot" *ngIf="movie.genres && movie.genres.length > 0">•</span>
+            <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0]?.name }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Loading -->
-  <div class="page-container" *ngIf="loading">
+  <div class="loading-wrap" *ngIf="loading">
     <div class="spinner"></div>
-    <p>Đang tải phim premium...</p>
+    <p>Đang tải nội dung...</p>
   </div>
 
   <!-- Error -->
-  <div class="page-container error-wrap" *ngIf="!loading && error">
+  <div class="error-wrap" *ngIf="!loading && error">
     <i class="fas fa-exclamation-triangle"></i>
     <p>{{ error }}</p>
   </div>
 
-  <!-- Movie Grid -->
-  <section class="movies-section" *ngIf="!loading && !error">
-    <div class="section-header">
-      <h2><i class="fas fa-film"></i> Danh Sách Phim Premium</h2>
-      <p>Chọn phim bạn muốn sở hữu và thanh toán an toàn qua MoMo</p>
-    </div>
-
-    <div class="movies-grid">
-      <div class="movie-card" *ngFor="let movie of premiumMovies" (click)="openPaymentModal(movie)">
-        <!-- Poster -->
-        <div class="card-poster">
-          <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy">
-          <div class="card-overlay">
-            <div class="overlay-content">
-              <button class="buy-btn-overlay">
-                <i class="fas fa-shopping-cart"></i>
-                Mua Ngay
-              </button>
-              <div class="price-tag-overlay">{{ formatPrice(getPriceForMovie(movie)) }}</div>
-            </div>
-          </div>
-          <!-- Badges -->
-          <div class="badge-vip">
-            <i class="fas fa-crown"></i> VIP
-          </div>
-          <div class="badge-rating">
-            <i class="fas fa-star"></i> {{ movie.rating }}
-          </div>
-        </div>
-
-        <!-- Info -->
-        <div class="card-info">
-          <h3 class="card-title">{{ movie.title }}</h3>
-          <div class="card-meta">
-            <span class="year">{{ movie.year }}</span>
-            <span class="dot">•</span>
-            <span class="duration">{{ movie.duration }}</span>
-            <span class="dot" *ngIf="movie.genres && movie.genres.length > 0">•</span>
-            <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0]?.name || '' }}</span>
-          </div>
-          <div class="card-price">
-            <div class="price-amount">
-              <i class="fas fa-tag"></i>
-              {{ formatPrice(getPriceForMovie(movie)) }}
-            </div>
-            <button class="buy-btn-card" (click)="openPaymentModal(movie); $event.stopPropagation()">
-              <i class="fab fa-cc-mastercard"></i>
-              Mua phim
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Payment Info Banner -->
-  <section class="payment-info" *ngIf="!loading">
+  <!-- ===================== INFO SECTION ===================== -->
+  <section class="info-section" *ngIf="!loading">
     <div class="info-grid">
       <div class="info-item">
         <div class="info-icon"><i class="fas fa-shield-alt"></i></div>
         <h4>Bảo mật tuyệt đối</h4>
-        <p>Thanh toán qua cổng MoMo được mã hóa HMAC-SHA256</p>
+        <p>Thanh toán qua MoMo mã hóa HMAC-SHA256</p>
       </div>
       <div class="info-item">
         <div class="info-icon"><i class="fas fa-bolt"></i></div>
-        <h4>Xác nhận tức thì</h4>
-        <p>Quyền xem phim được kích hoạt ngay sau khi thanh toán</p>
+        <h4>Kích hoạt tức thì</h4>
+        <p>Tài khoản Premium hoạt động ngay sau khi thanh toán</p>
       </div>
       <div class="info-item">
-        <div class="info-icon"><i class="fas fa-infinity"></i></div>
-        <h4>Xem mãi mãi</h4>
-        <p>Mua một lần, sở hữu vĩnh viễn trên tài khoản của bạn</p>
+        <div class="info-icon"><i class="fas fa-redo-alt"></i></div>
+        <h4>Hủy dễ dàng</h4>
+        <p>Không ràng buộc, hủy gói bất cứ lúc nào</p>
       </div>
       <div class="info-item">
         <div class="info-icon"><i class="fas fa-headset"></i></div>
@@ -127,44 +162,51 @@
       </div>
     </div>
   </section>
+
 </div>
 
 <!-- ===================== PAYMENT MODAL ===================== -->
 <div class="modal-backdrop" *ngIf="showPaymentModal" (click)="closePaymentModal()">
   <div class="payment-modal" (click)="$event.stopPropagation()">
 
-    <!-- Close button -->
     <button class="modal-close" (click)="closePaymentModal()">
       <i class="fas fa-times"></i>
     </button>
 
     <!-- ===== STEP 1: Confirm ===== -->
-    <div class="modal-step" *ngIf="paymentStep === 'confirm'">
+    <div class="modal-step" *ngIf="paymentStep === 'confirm' && selectedPlan">
       <div class="modal-header">
-        <div class="momo-logo">
-          <i class="fas fa-wallet"></i>
-        </div>
-        <h2>Xác nhận thanh toán</h2>
+        <div class="momo-logo"><i class="fas fa-wallet"></i></div>
+        <h2>Xác nhận đăng ký</h2>
         <p>Thanh toán an toàn qua ví MoMo</p>
       </div>
 
-      <div class="movie-summary" *ngIf="selectedMovie">
-        <img [src]="selectedMovie.posterUrl" [alt]="selectedMovie.title" class="summary-poster">
-        <div class="summary-info">
-          <h3>{{ selectedMovie.title }}</h3>
-          <div class="summary-meta">
-            <span><i class="fas fa-calendar"></i> {{ selectedMovie.year }}</span>
-            <span><i class="fas fa-clock"></i> {{ selectedMovie.duration }}</span>
-            <span><i class="fas fa-star"></i> {{ selectedMovie.rating }}</span>
-          </div>
-          <p class="summary-desc">{{ selectedMovie.description | slice:0:120 }}...</p>
+      <!-- Plan summary -->
+      <div class="plan-summary">
+        <div class="summary-plan-icon">
+          <i class="fas" [class.fa-calendar]="selectedPlan.id === 'MONTHLY'"
+                         [class.fa-layer-group]="selectedPlan.id === 'QUARTERLY'"
+                         [class.fa-crown]="selectedPlan.id === 'YEARLY'"></i>
+        </div>
+        <div class="summary-plan-info">
+          <h3>{{ selectedPlan.name }}</h3>
+          <p>Thời hạn: {{ selectedPlan.duration }}</p>
+          <ul class="summary-features">
+            <li *ngFor="let f of selectedPlan.features.slice(0, 3)">
+              <i class="fas fa-check"></i> {{ f }}
+            </li>
+          </ul>
         </div>
       </div>
 
       <div class="price-breakdown">
         <div class="price-row">
-          <span>Giá phim</span>
-          <span>{{ formatPrice(selectedMoviePrice) }}</span>
+          <span>Gói đăng ký</span>
+          <span>{{ selectedPlan.name }}</span>
+        </div>
+        <div class="price-row">
+          <span>Thời hạn</span>
+          <span>{{ selectedPlan.duration }}</span>
         </div>
         <div class="price-row">
           <span>Phí giao dịch</span>
@@ -172,12 +214,15 @@
         </div>
         <div class="price-row total">
           <span>Tổng thanh toán</span>
-          <span class="total-amount">{{ formatPrice(selectedMoviePrice) }}</span>
+          <span class="total-amount">{{ formatPrice(selectedPlan.price) }}</span>
         </div>
       </div>
 
       <div class="payment-methods">
         <div class="method-badge active">
+          <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+               onerror="this.src='https://via.placeholder.com/32x32?text=M'"
+               alt="MoMo" class="momo-icon">
           <span>Ví MoMo</span>
           <i class="fas fa-check-circle"></i>
         </div>
@@ -186,7 +231,7 @@
       <button class="confirm-btn" (click)="confirmPayment()" [disabled]="paymentLoading">
         <span *ngIf="!paymentLoading">
           <i class="fas fa-lock"></i>
-          Thanh toán {{ formatPrice(selectedMoviePrice) }}
+          Thanh toán {{ formatPrice(selectedPlan.price) }}
         </span>
         <span *ngIf="paymentLoading">
           <i class="fas fa-spinner fa-spin"></i>
@@ -195,26 +240,20 @@
       </button>
     </div>
 
-    <!-- ===== STEP 2: QR Code ===== -->
+    <!-- ===== STEP 2: QR ===== -->
     <div class="modal-step" *ngIf="paymentStep === 'qr'">
       <div class="modal-header">
-        <div class="momo-logo pulse">
-          <i class="fas fa-qrcode"></i>
-        </div>
+        <div class="momo-logo pulse"><i class="fas fa-qrcode"></i></div>
         <h2>Quét mã QR để thanh toán</h2>
         <p>Mở ứng dụng MoMo và quét mã QR bên dưới</p>
       </div>
 
       <div class="qr-wrapper" *ngIf="currentPayment">
         <div class="qr-container">
-          <!-- QR từ URL MoMo -->
-          <img
-            *ngIf="currentPayment.qrCodeUrl"
-            [src]="currentPayment.qrCodeUrl"
-            alt="MoMo QR Code"
-            class="qr-image"
-          >
-          <!-- Fallback nếu không có qrCodeUrl -->
+          <img *ngIf="currentPayment.qrCodeUrl"
+               [src]="currentPayment.qrCodeUrl"
+               alt="MoMo QR Code"
+               class="qr-image">
           <div class="qr-placeholder" *ngIf="!currentPayment.qrCodeUrl">
             <i class="fas fa-qrcode"></i>
             <p>Mã QR không khả dụng</p>
@@ -224,6 +263,10 @@
           <div class="qr-amount">
             <span>Số tiền:</span>
             <strong>{{ formatPrice(currentPayment.amount) }}</strong>
+          </div>
+          <div class="qr-plan" *ngIf="currentPayment.planType">
+            <span>Gói:</span>
+            <strong>{{ getPlanDurationLabel(currentPayment.planType) }}</strong>
           </div>
           <div class="qr-order">
             <span>Mã đơn:</span>
@@ -255,39 +298,44 @@
           <div class="ripple-ring delay-1"></div>
           <div class="ripple-ring delay-2"></div>
           <div class="success-icon-wrapper">
-            <i class="fas fa-check"></i>
+            <i class="fas fa-crown"></i>
           </div>
         </div>
-        <h2 class="success-title">Thanh Toán Thành Công!</h2>
-        <p class="success-subtitle">Phim <strong>{{ selectedMovie?.title }}</strong> đã được mở khóa và sẵn sàng</p>
+        <h2 class="success-title">Chào Mừng Hội Viên Premium!</h2>
+        <p class="success-subtitle">
+          Bạn đã đăng ký thành công gói <strong>{{ selectedPlan?.name }}</strong>.<br>
+          Tận hưởng toàn bộ kho phim premium ngay bây giờ!
+        </p>
       </div>
 
       <div class="receipt-card" *ngIf="currentPayment">
         <div class="receipt-header">
-          <span>Hóa đơn điện tử</span>
+          <span>Xác nhận đăng ký</span>
           <i class="fas fa-receipt"></i>
         </div>
-
         <div class="receipt-body">
+          <div class="detail-row">
+            <span class="label">Gói hội viên</span>
+            <span class="value">{{ selectedPlan?.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Thời hạn</span>
+            <span class="value">{{ selectedPlan?.duration }}</span>
+          </div>
           <div class="detail-row">
             <span class="label">Mã giao dịch</span>
             <span class="value order-id">{{ currentPayment.orderId | slice:0:10 | uppercase }}</span>
           </div>
           <div class="detail-row">
             <span class="label">Phương thức</span>
-            <span class="value flex-value">
-<!--              <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" class="mini-logo" onerror="this.style.display='none'"> -->
-              Ví MoMo
-            </span>
+            <span class="value">Ví MoMo</span>
           </div>
           <div class="detail-row">
             <span class="label">Trạng thái</span>
             <span class="value"><span class="status-badge success"><i class="fas fa-check-circle"></i> Thành công</span></span>
           </div>
         </div>
-
         <div class="receipt-divider"></div>
-
         <div class="receipt-footer">
           <span class="label">Tổng thanh toán</span>
           <span class="value total">{{ formatPrice(currentPayment.amount) }}</span>
@@ -295,7 +343,7 @@
       </div>
 
       <div class="success-actions">
-        <button class="watch-now-btn" (click)="watchMovie(selectedMovie!)">
+        <button class="watch-now-btn" (click)="browsePremiumMovies()">
           <i class="fas fa-play"></i> Xem Phim Ngay
         </button>
         <button class="close-modal-btn" (click)="closePaymentModal()">
@@ -314,13 +362,10 @@
       <h2>Thanh toán thất bại</h2>
       <p>Giao dịch không thể hoàn tất. Vui lòng thử lại.</p>
       <div class="failed-actions">
-        <button class="retry-btn" (click)="retryPayment()">
-          <i class="fas fa-redo"></i>
-          Thử lại
+        <button class="retry-btn" (click)="paymentStep = 'confirm'">
+          <i class="fas fa-redo"></i> Thử lại
         </button>
-        <button class="close-modal-btn" (click)="closePaymentModal()">
-          Đóng
-        </button>
+        <button class="close-modal-btn" (click)="closePaymentModal()">Đóng</button>
       </div>
     </div>
 

@@ -12,6 +12,7 @@ export interface Movie{
   year:string;
   rating:string;
   duration:string;
+  isPremium?: boolean;
 }
 export interface Genre{
   id:string;

@@ -4,6 +4,8 @@ export interface User {
   email:string;
   createdAt:string;
   roles:Role[];
+  isPremium?: boolean;
+  premiumExpiredAt?: string;
 }
 export interface Role{
   name:string;

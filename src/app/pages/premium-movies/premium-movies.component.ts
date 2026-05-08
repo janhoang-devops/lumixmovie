@@ -127,13 +127,14 @@ export class PremiumMoviesComponent implements OnInit {
 
   openMomoApp(): void {
     if (this.currentPayment?.payUrl) {
-      console.log('Open MoMo app:', this.currentPayment.payUrl);
-      // Ưu tiên deeplink để mở App MoMo trực tiếp, fallback về payUrl
-      const targetUrl = this.currentPayment.deeplink || this.currentPayment.payUrl;
+      // Sử dụng payUrl vì đây là link thông minh, tự động chuyển hướng app trên mobile và hiện QR trên desktop
+      const targetUrl = this.currentPayment.payUrl;
+      
+      console.log('Redirecting to MoMo:', targetUrl);
 
       // Thử mở trong tab mới
       const win = window.open(targetUrl, '_blank');
-
+      
       // Nếu trình duyệt chặn popup, điều hướng trực tiếp ở tab hiện tại
       if (!win || win.closed || typeof win.closed === 'undefined') {
         window.location.href = targetUrl;

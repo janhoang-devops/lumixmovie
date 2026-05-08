@@ -127,6 +127,7 @@ export class PremiumMoviesComponent implements OnInit {
 
   openMomoApp(): void {
     if (this.currentPayment?.payUrl) {
+      console.log('Open MoMo app:', this.currentPayment.payUrl);
       // Ưu tiên deeplink để mở App MoMo trực tiếp, fallback về payUrl
       const targetUrl = this.currentPayment.deeplink || this.currentPayment.payUrl;
 

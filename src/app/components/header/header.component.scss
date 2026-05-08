@@ -53,6 +53,17 @@
   background: #515151;
 }
 
+.nav-link.premium-link {
+  background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(229,9,20,0.15));
+  color: #f5a623;
+  border: 1px solid rgba(245,166,35,0.3);
+  i { margin-right: 4px; }
+  &:hover, &.active-link {
+    background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(229,9,20,0.3));
+    color: #ffd166;
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;

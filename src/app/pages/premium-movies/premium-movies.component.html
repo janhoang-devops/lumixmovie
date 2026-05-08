@@ -1,0 +1,350 @@
+<app-header></app-header>
+
+<div class="premium-page">
+
+  <!-- Hero Banner -->
+  <section class="premium-hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="vip-badge">
+        <i class="fas fa-crown"></i>
+        <span>LUMIX PREMIUM</span>
+      </div>
+      <h1>Phim Trả Phí Độc Quyền</h1>
+      <p>Trải nghiệm kho phim premium chất lượng 4K – Mua một lần, xem mãi mãi</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">{{ premiumMovies.length }}+</span>
+          <span class="stat-label">Phim độc quyền</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">4K</span>
+          <span class="stat-label">Chất lượng hình ảnh</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">Xem không giới hạn</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-posters" *ngIf="!loading && premiumMovies.length > 0">
+      <div class="poster-float" *ngFor="let m of premiumMovies.slice(0, 5); let i = index"
+           [style.animation-delay]="(i * 0.4) + 's'">
+        <img [src]="m.posterUrl" [alt]="m.title">
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading -->
+  <div class="page-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải phim premium...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="page-container error-wrap" *ngIf="!loading && error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Movie Grid -->
+  <section class="movies-section" *ngIf="!loading && !error">
+    <div class="section-header">
+      <h2><i class="fas fa-film"></i> Danh Sách Phim Premium</h2>
+      <p>Chọn phim bạn muốn sở hữu và thanh toán an toàn qua MoMo</p>
+    </div>
+
+    <div class="movies-grid">
+      <div class="movie-card" *ngFor="let movie of premiumMovies" (click)="openPaymentModal(movie)">
+        <!-- Poster -->
+        <div class="card-poster">
+          <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy">
+          <div class="card-overlay">
+            <div class="overlay-content">
+              <button class="buy-btn-overlay">
+                <i class="fas fa-shopping-cart"></i>
+                Mua Ngay
+              </button>
+              <div class="price-tag-overlay">{{ formatPrice(getPriceForMovie(movie)) }}</div>
+            </div>
+          </div>
+          <!-- Badges -->
+          <div class="badge-vip">
+            <i class="fas fa-crown"></i> VIP
+          </div>
+          <div class="badge-rating">
+            <i class="fas fa-star"></i> {{ movie.rating }}
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="card-info">
+          <h3 class="card-title">{{ movie.title }}</h3>
+          <div class="card-meta">
+            <span class="year">{{ movie.year }}</span>
+            <span class="dot">•</span>
+            <span class="duration">{{ movie.duration }}</span>
+            <span class="dot" *ngIf="movie.genres && movie.genres.length > 0">•</span>
+            <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0]?.name || '' }}</span>
+          </div>
+          <div class="card-price">
+            <div class="price-amount">
+              <i class="fas fa-tag"></i>
+              {{ formatPrice(getPriceForMovie(movie)) }}
+            </div>
+            <button class="buy-btn-card" (click)="openPaymentModal(movie); $event.stopPropagation()">
+              <i class="fab fa-cc-mastercard"></i>
+              Mua phim
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Payment Info Banner -->
+  <section class="payment-info" *ngIf="!loading">
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-icon"><i class="fas fa-shield-alt"></i></div>
+        <h4>Bảo mật tuyệt đối</h4>
+        <p>Thanh toán qua cổng MoMo được mã hóa HMAC-SHA256</p>
+      </div>
+      <div class="info-item">
+        <div class="info-icon"><i class="fas fa-bolt"></i></div>
+        <h4>Xác nhận tức thì</h4>
+        <p>Quyền xem phim được kích hoạt ngay sau khi thanh toán</p>
+      </div>
+      <div class="info-item">
+        <div class="info-icon"><i class="fas fa-infinity"></i></div>
+        <h4>Xem mãi mãi</h4>
+        <p>Mua một lần, sở hữu vĩnh viễn trên tài khoản của bạn</p>
+      </div>
+      <div class="info-item">
+        <div class="info-icon"><i class="fas fa-headset"></i></div>
+        <h4>Hỗ trợ 24/7</h4>
+        <p>Đội ngũ hỗ trợ luôn sẵn sàng giải quyết mọi vấn đề</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== PAYMENT MODAL ===================== -->
+<div class="modal-backdrop" *ngIf="showPaymentModal" (click)="closePaymentModal()">
+  <div class="payment-modal" (click)="$event.stopPropagation()">
+
+    <!-- Close button -->
+    <button class="modal-close" (click)="closePaymentModal()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- ===== STEP 1: Confirm ===== -->
+    <div class="modal-step" *ngIf="paymentStep === 'confirm'">
+      <div class="modal-header">
+        <div class="momo-logo">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <h2>Xác nhận thanh toán</h2>
+        <p>Thanh toán an toàn qua ví MoMo</p>
+      </div>
+
+      <div class="movie-summary" *ngIf="selectedMovie">
+        <img [src]="selectedMovie.posterUrl" [alt]="selectedMovie.title" class="summary-poster">
+        <div class="summary-info">
+          <h3>{{ selectedMovie.title }}</h3>
+          <div class="summary-meta">
+            <span><i class="fas fa-calendar"></i> {{ selectedMovie.year }}</span>
+            <span><i class="fas fa-clock"></i> {{ selectedMovie.duration }}</span>
+            <span><i class="fas fa-star"></i> {{ selectedMovie.rating }}</span>
+          </div>
+          <p class="summary-desc">{{ selectedMovie.description | slice:0:120 }}...</p>
+        </div>
+      </div>
+
+      <div class="price-breakdown">
+        <div class="price-row">
+          <span>Giá phim</span>
+          <span>{{ formatPrice(selectedMoviePrice) }}</span>
+        </div>
+        <div class="price-row">
+          <span>Phí giao dịch</span>
+          <span class="free">Miễn phí</span>
+        </div>
+        <div class="price-row total">
+          <span>Tổng thanh toán</span>
+          <span class="total-amount">{{ formatPrice(selectedMoviePrice) }}</span>
+        </div>
+      </div>
+
+      <div class="payment-methods">
+        <div class="method-badge active">
+          <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+               onerror="this.src='https://via.placeholder.com/32x32?text=M'"
+               alt="MoMo" class="momo-icon">
+          <span>Ví MoMo</span>
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <button class="confirm-btn" (click)="confirmPayment()" [disabled]="paymentLoading">
+        <span *ngIf="!paymentLoading">
+          <i class="fas fa-lock"></i>
+          Thanh toán {{ formatPrice(selectedMoviePrice) }}
+        </span>
+        <span *ngIf="paymentLoading">
+          <i class="fas fa-spinner fa-spin"></i>
+          Đang tạo đơn hàng...
+        </span>
+      </button>
+    </div>
+
+    <!-- ===== STEP 2: QR Code ===== -->
+    <div class="modal-step" *ngIf="paymentStep === 'qr'">
+      <div class="modal-header">
+        <div class="momo-logo pulse">
+          <i class="fas fa-qrcode"></i>
+        </div>
+        <h2>Quét mã QR để thanh toán</h2>
+        <p>Mở ứng dụng MoMo và quét mã QR bên dưới</p>
+      </div>
+
+      <div class="qr-wrapper" *ngIf="currentPayment">
+        <div class="qr-container">
+          <!-- QR từ URL MoMo -->
+          <img
+            *ngIf="currentPayment.qrCodeUrl"
+            [src]="currentPayment.qrCodeUrl"
+            alt="MoMo QR Code"
+            class="qr-image"
+          >
+          <!-- Fallback nếu không có qrCodeUrl -->
+          <div class="qr-placeholder" *ngIf="!currentPayment.qrCodeUrl">
+            <i class="fas fa-qrcode"></i>
+            <p>Mã QR không khả dụng</p>
+          </div>
+        </div>
+        <div class="qr-info">
+          <div class="qr-amount">
+            <span>Số tiền:</span>
+            <strong>{{ formatPrice(currentPayment.amount) }}</strong>
+          </div>
+          <div class="qr-order">
+            <span>Mã đơn:</span>
+            <code>{{ currentPayment.orderId | slice:0:12 }}...</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="qr-actions">
+        <button class="momo-app-btn" (click)="openMomoApp()">
+          <i class="fas fa-mobile-alt"></i>
+          Mở App MoMo để thanh toán
+        </button>
+      </div>
+
+      <!-- DEV ONLY: Nút giả lập thanh toán thành công -->
+      <div class="dev-simulate-wrap">
+        <div class="dev-label"><i class="fas fa-flask"></i> Chế độ phát triển</div>
+        <button class="simulate-btn" (click)="simulatePayment()" [disabled]="paymentLoading">
+          <span *ngIf="!paymentLoading">
+            <i class="fas fa-check-double"></i>
+            Giả lập thanh toán thành công
+          </span>
+          <span *ngIf="paymentLoading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Đang xử lý...
+          </span>
+        </button>
+        <small>Bỏ qua quét QR – chỉ dùng khi dev/test</small>
+      </div>
+
+      <div class="checking-status">
+        <div class="checking-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Đang chờ xác nhận thanh toán từ MoMo...</p>
+        <small>Trang sẽ tự động cập nhật sau khi thanh toán thành công</small>
+      </div>
+    </div>
+
+    <!-- ===== STEP 3: Success ===== -->
+    <!-- ===== STEP 3: Success ===== -->
+    <div class="modal-step success-step" *ngIf="paymentStep === 'success'">
+      <div class="success-header">
+        <div class="success-animation">
+          <div class="ripple-ring delay-1"></div>
+          <div class="ripple-ring delay-2"></div>
+          <div class="success-icon-wrapper">
+            <i class="fas fa-check"></i>
+          </div>
+        </div>
+        <h2 class="success-title">Thanh Toán Thành Công!</h2>
+        <p class="success-subtitle">Phim <strong>{{ selectedMovie?.title }}</strong> đã được mở khóa và sẵn sàng</p>
+      </div>
+
+      <div class="receipt-card" *ngIf="currentPayment">
+        <div class="receipt-header">
+          <span>Hóa đơn điện tử</span>
+          <i class="fas fa-receipt"></i>
+        </div>
+        
+        <div class="receipt-body">
+          <div class="detail-row">
+            <span class="label">Mã giao dịch</span>
+            <span class="value order-id">{{ currentPayment.orderId | slice:0:10 | uppercase }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Phương thức</span>
+            <span class="value flex-value">
+              <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" class="mini-logo" onerror="this.style.display='none'"> 
+              Ví MoMo
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Trạng thái</span>
+            <span class="value"><span class="status-badge success"><i class="fas fa-check-circle"></i> Thành công</span></span>
+          </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-footer">
+          <span class="label">Tổng thanh toán</span>
+          <span class="value total">{{ formatPrice(currentPayment.amount) }}</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button class="watch-now-btn" (click)="watchMovie(selectedMovie!)">
+          <i class="fas fa-play"></i> Xem Phim Ngay
+        </button>
+        <button class="close-modal-btn" (click)="closePaymentModal()">
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 4: Failed ===== -->
+    <div class="modal-step failed-step" *ngIf="paymentStep === 'failed'">
+      <div class="failed-animation">
+        <div class="failed-circle">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <h2>Thanh toán thất bại</h2>
+      <p>Giao dịch không thể hoàn tất. Vui lòng thử lại.</p>
+      <div class="failed-actions">
+        <button class="retry-btn" (click)="retryPayment()">
+          <i class="fas fa-redo"></i>
+          Thử lại
+        </button>
+        <button class="close-modal-btn" (click)="closePaymentModal()">
+          Đóng
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-footer></app-footer>

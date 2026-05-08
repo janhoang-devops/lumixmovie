@@ -11,6 +11,8 @@ import {WatchHistoryComponent} from "./pages/watch-history/watch-history.compone
 import {VerifyAccountComponent} from "./pages/verify-account/verify-account.component";
 import {LoginSuccessComponent} from "./pages/login-success/login-success.component";
 import {MovieGridComponent} from "./components/movie-grid/movie-grid.component";
+import {PremiumMoviesComponent} from "./pages/premium-movies/premium-movies.component";
+import {PaymentResultComponent} from "./pages/payment-result/payment-result.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent, title: 'Lumix – Đăng nhập'},
@@ -26,6 +28,8 @@ const routes: Routes = [
   {path: 'registration-pending', component: VerifyAccountComponent, title: 'Lumix – Xác minh tài khoản'},
   {path: 'verify-account/:token', component: VerifyAccountComponent, title: 'Lumix – Kích hoạt tài khoản'},
   {path: 'login-success', component: LoginSuccessComponent, title: 'Lumix – Đăng nhập thành công'},
+  {path: 'premium', component: PremiumMoviesComponent, title: 'Lumix – Phim Trả Phí'},
+  {path: 'payment-result', component: PaymentResultComponent, title: 'Lumix – Kết quả thanh toán'},
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),

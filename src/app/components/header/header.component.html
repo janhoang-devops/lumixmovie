@@ -7,6 +7,9 @@
     <nav class="desktop-nav">
       <a routerLink="/home" routerLinkActive="active-link" class="nav-link">Trang Chủ</a>
       <a routerLink="/movies" routerLinkActive="active-link" class="nav-link">Phim & Shows</a>
+      <a routerLink="/premium" routerLinkActive="active-link" class="nav-link premium-link">
+        <i class="fas fa-crown"></i> Premium
+      </a>
       <a routerLink="/introduce" routerLinkActive="active-link" class="nav-link">Giới Thiệu</a>
       <a routerLink="/support" routerLinkActive="active-link" class="nav-link">Hỗ Trợ</a>
     </nav>
@@ -104,6 +107,10 @@
 
   <a routerLink="/favorites" routerLinkActive="active-link" class="nav-link" (click)="closeMenu()">
     <i class="fas fa-heart"></i> Danh Sách Của Tôi
+  </a>
+
+  <a routerLink="/premium" routerLinkActive="active-link" class="nav-link premium-link" (click)="closeMenu()">
+    <i class="fas fa-crown"></i> Phim Premium
   </a>
 
   <div class="mobile-menu-footer">

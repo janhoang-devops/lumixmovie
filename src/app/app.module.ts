@@ -36,6 +36,8 @@ import { TopMoviesComponent } from './components/top-movies/top-movies.component
 import { DashboardCommentComponent } from './components/dashboard-comment/dashboard-comment.component';
 import { PopupComponent } from './components/popup/popup.component';
 import { CommentThreadComponent } from './components/comment-thread/comment-thread.component';
+import { PremiumMoviesComponent } from './pages/premium-movies/premium-movies.component';
+import { PaymentResultComponent } from './pages/payment-result/payment-result.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,9 @@ import { CommentThreadComponent } from './components/comment-thread/comment-thre
     TopMoviesComponent,
     DashboardCommentComponent,
     PopupComponent,
-    CommentThreadComponent
+    CommentThreadComponent,
+    PremiumMoviesComponent,
+    PaymentResultComponent
   ],
     imports: [
         BrowserModule,

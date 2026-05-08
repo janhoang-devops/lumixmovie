@@ -52,7 +52,7 @@ export class PremiumMoviesComponent implements OnInit {
     private paymentService: PaymentService,
     private notification: NotificationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadPremiumMovies();
@@ -76,11 +76,11 @@ export class PremiumMoviesComponent implements OnInit {
   }
 
   openPaymentModal(movie: Movie): void {
-    // if (!this.authService.isLoggedIn()) {
-    //   this.notification.show('Vui lòng đăng nhập để mua phim!', 'warning');
-    //   this.router.navigate(['/login']);
-    //   return;
-    // }
+    if (!this.authService.isLoggedIn()) {
+      this.notification.show('Vui lòng đăng nhập để mua phim!', 'warning');
+      this.router.navigate(['/login']);
+      return;
+    }
     this.selectedMovie = movie;
     this.selectedMoviePrice = getPriceForMovie(movie);
     this.paymentStep = 'confirm';
@@ -127,27 +127,19 @@ export class PremiumMoviesComponent implements OnInit {
 
   openMomoApp(): void {
     if (this.currentPayment?.payUrl) {
-      window.open(this.currentPayment.payUrl, '_blank');
-    }
-  }
+      // Ưu tiên deeplink để mở App MoMo trực tiếp, fallback về payUrl
+      const targetUrl = this.currentPayment.deeplink || this.currentPayment.payUrl;
 
-  /** [DEV ONLY] Giả lập thanh toán thành công mà không cần quét QR */
-  simulatePayment(): void {
-    if (!this.currentPayment?.orderId) return;
-    this.paymentLoading = true;
-    this.paymentService.simulatePaymentSuccess(this.currentPayment.orderId).subscribe({
-      next: (payment) => {
-        this.stopStatusCheck();
-        this.currentPayment = payment;
-        this.paymentStep = 'success';
-        this.paymentLoading = false;
-        this.notification.show('Giả lập thành công! Thanh toán đã được xác nhận', 'success');
-      },
-      error: (err) => {
-        this.paymentLoading = false;
-        this.notification.show(err.message || 'Giả lập thất bại!', 'error');
+      // Thử mở trong tab mới
+      const win = window.open(targetUrl, '_blank');
+
+      // Nếu trình duyệt chặn popup, điều hướng trực tiếp ở tab hiện tại
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        window.location.href = targetUrl;
       }
-    });
+    } else {
+      this.notification.show('Không tìm thấy liên kết thanh toán MoMo!', 'error');
+    }
   }
 
   private startStatusCheck(orderId: string): void {
@@ -174,7 +166,7 @@ export class PremiumMoviesComponent implements OnInit {
             this.notification.show('Thanh toán thất bại. Vui lòng thử lại!', 'error');
           }
         },
-        error: () => {}
+        error: () => { }
       });
     }, 5000);
   }

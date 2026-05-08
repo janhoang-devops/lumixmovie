@@ -242,22 +242,6 @@
         </button>
       </div>
 
-      <!-- DEV ONLY: Nút giả lập thanh toán thành công -->
-      <div class="dev-simulate-wrap">
-        <div class="dev-label"><i class="fas fa-flask"></i> Chế độ phát triển</div>
-        <button class="simulate-btn" (click)="simulatePayment()" [disabled]="paymentLoading">
-          <span *ngIf="!paymentLoading">
-            <i class="fas fa-check-double"></i>
-            Giả lập thanh toán thành công
-          </span>
-          <span *ngIf="paymentLoading">
-            <i class="fas fa-spinner fa-spin"></i>
-            Đang xử lý...
-          </span>
-        </button>
-        <small>Bỏ qua quét QR – chỉ dùng khi dev/test</small>
-      </div>
-
       <div class="checking-status">
         <div class="checking-dots">
           <span></span><span></span><span></span>

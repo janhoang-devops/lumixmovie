@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { MovieService } from '../../services/movie.service';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { PaymentService } from '../../services/payment.service';
 import { NotificationService } from '../../services/notification.service';
 import {
@@ -44,6 +45,7 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   constructor(
     private movieService: MovieService,
     private authService: AuthService,
+    private userService: UserService,
     private paymentService: PaymentService,
     private notification: NotificationService,
     private router: Router
@@ -159,6 +161,18 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
             this.stopStatusCheck();
             this.currentPayment = payment;
             this.paymentStep = 'success';
+            // Kích hoạt Premium trong localStorage ngay lập tức
+            this.authService.activatePremium();
+            // Đồng bộ thêm premiumExpiredAt từ API user
+            const userId = this.authService.getUserId();
+            if (userId) {
+              this.userService.getUserById(userId).subscribe({
+                next: (user) => {
+                  this.authService.syncPremiumStatus(user.isPremium ?? false, user.premiumExpiredAt);
+                },
+                error: () => {}
+              });
+            }
             this.notification.show('🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!', 'success');
           } else if (payment.status === PaymentStatus.FAILED) {
             this.stopStatusCheck();

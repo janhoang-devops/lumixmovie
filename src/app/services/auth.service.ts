@@ -18,7 +18,9 @@ export class AuthService {
 
   private readonly USER_ID_KEY = "userId";
   private readonly USERNAME_KEY = "username";
-  private readonly ROLE_KEY = "roles"
+  private readonly ROLE_KEY = "roles";
+  private readonly IS_PREMIUM_KEY = "isPremium";
+  private readonly PREMIUM_EXPIRED_KEY = "premiumExpiredAt";
 
   login(username: string, password: string): Observable<LoginResponse> {
     const credentials = {username, password};
@@ -53,6 +55,8 @@ export class AuthService {
         localStorage.removeItem(this.USER_ID_KEY);
         localStorage.removeItem(this.ROLE_KEY);
         localStorage.removeItem('rememberMe');
+        localStorage.removeItem(this.IS_PREMIUM_KEY);
+        localStorage.removeItem(this.PREMIUM_EXPIRED_KEY);
         this.router.navigate(['/login'])
       },
       error:(err)=>{
@@ -61,6 +65,8 @@ export class AuthService {
         localStorage.removeItem(this.USER_ID_KEY);
         localStorage.removeItem(this.ROLE_KEY);
         localStorage.removeItem('rememberMe');
+        localStorage.removeItem(this.IS_PREMIUM_KEY);
+        localStorage.removeItem(this.PREMIUM_EXPIRED_KEY);
         this.router.navigate(['/login']);
       }
     })
@@ -90,5 +96,38 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.isLoggedIn() && localStorage.getItem(this.ROLE_KEY) === 'ADMIN';
+  }
+
+  // ========== PREMIUM MEMBERSHIP ==========
+
+  /** Kích hoạt Premium sau thanh toán thành công */
+  activatePremium(expiredAt?: string): void {
+    localStorage.setItem(this.IS_PREMIUM_KEY, 'true');
+    if (expiredAt) {
+      localStorage.setItem(this.PREMIUM_EXPIRED_KEY, expiredAt);
+    }
+  }
+
+  /** Kiểm tra user có đang là hội viên Premium không */
+  isPremium(): boolean {
+    return localStorage.getItem(this.IS_PREMIUM_KEY) === 'true';
+  }
+
+  /** Lấy ngày hết hạn Premium (nếu có) */
+  getPremiumExpiredAt(): string | null {
+    return localStorage.getItem(this.PREMIUM_EXPIRED_KEY);
+  }
+
+  /** Đồng bộ trạng thái Premium từ dữ liệu user API trả về */
+  syncPremiumStatus(isPremium: boolean, premiumExpiredAt?: string | null): void {
+    if (isPremium) {
+      localStorage.setItem(this.IS_PREMIUM_KEY, 'true');
+      if (premiumExpiredAt) {
+        localStorage.setItem(this.PREMIUM_EXPIRED_KEY, premiumExpiredAt);
+      }
+    } else {
+      localStorage.removeItem(this.IS_PREMIUM_KEY);
+      localStorage.removeItem(this.PREMIUM_EXPIRED_KEY);
+    }
   }
 }

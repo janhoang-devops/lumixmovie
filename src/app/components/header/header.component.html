@@ -51,10 +51,18 @@
           <a routerLink="/favorites" class="favorite-user">
             <i class="fa-regular fa-heart"></i>
           </a>
-          <button class="profile-user-btn" (click)="toggleProfileMenu($event)">
+          <button class="profile-user-btn" (click)="toggleProfileMenu($event)" [class.is-premium]="isPremiumUser">
             <i class="fa-solid fa-circle-user"></i>
+            <span class="premium-crown-badge" *ngIf="isPremiumUser" title="Hội viên Premium">
+              <i class="fas fa-crown"></i>
+            </span>
           </button>
           <div class="profile-dropdown" *ngIf="isProfileMenuOpen">
+            <!-- Premium badge trong dropdown -->
+            <div class="dropdown-premium-banner" *ngIf="isPremiumUser">
+              <i class="fas fa-crown"></i>
+              <span>Hội Viên Premium</span>
+            </div>
             <a routerLink="/profile" class="dropdown-item" (click)="isProfileMenuOpen=false">
               <i class="fas fa-user-cog"></i>
               <span>Tài khoản</span>

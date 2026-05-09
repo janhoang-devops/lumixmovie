@@ -14,6 +14,7 @@ import {FormControl} from "@angular/forms";
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
+  isPremiumUser = false;
   isMenuOpen = false;
   isSearchActive = false;
   isSearching = false;
@@ -34,6 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
+    this.isPremiumUser = this.authService.isPremium();
     this.checkValueChange();
   };
 

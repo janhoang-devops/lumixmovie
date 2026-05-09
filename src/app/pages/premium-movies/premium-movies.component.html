@@ -37,7 +37,7 @@
     <!-- Floating movie posters -->
     <div class="hero-posters" *ngIf="!loading && premiumMovies.length > 0">
       <div class="poster-float" *ngFor="let m of premiumMovies.slice(0, 5); let i = index"
-           [style.animation-delay]="(i * 0.4) + 's'">
+        [style.animation-delay]="(i * 0.4) + 's'">
         <img [src]="m.posterUrl" [alt]="m.title">
         <div class="poster-overlay"><i class="fas fa-crown"></i></div>
       </div>
@@ -52,18 +52,14 @@
     </div>
 
     <div class="plans-grid">
-      <div class="plan-card"
-           *ngFor="let plan of plans"
-           [class.popular]="plan.popular"
-           (click)="selectPlan(plan)">
+      <div class="plan-card" *ngFor="let plan of plans" [class.popular]="plan.popular" (click)="selectPlan(plan)">
 
         <!-- Popular badge -->
         <div class="plan-badge" *ngIf="plan.badge">{{ plan.badge }}</div>
 
         <div class="plan-icon">
-          <i class="fas" [class.fa-calendar]="plan.id === 'MONTHLY'"
-                         [class.fa-layer-group]="plan.id === 'QUARTERLY'"
-                         [class.fa-crown]="plan.id === 'YEARLY'"></i>
+          <i class="fas" [class.fa-calendar]="plan.id === 'MONTHLY'" [class.fa-layer-group]="plan.id === 'QUARTERLY'"
+            [class.fa-crown]="plan.id === 'YEARLY'"></i>
         </div>
 
         <h3 class="plan-name">{{ plan.name }}</h3>
@@ -118,7 +114,7 @@
             <span class="dot" *ngIf="movie.duration">•</span>
             <span class="duration">{{ movie.duration }}</span>
             <span class="dot" *ngIf="movie.genres && movie.genres.length > 0">•</span>
-            <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0]?.name }}</span>
+            <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0].name }}</span>
           </div>
         </div>
       </div>
@@ -185,8 +181,8 @@
       <div class="plan-summary">
         <div class="summary-plan-icon">
           <i class="fas" [class.fa-calendar]="selectedPlan.id === 'MONTHLY'"
-                         [class.fa-layer-group]="selectedPlan.id === 'QUARTERLY'"
-                         [class.fa-crown]="selectedPlan.id === 'YEARLY'"></i>
+            [class.fa-layer-group]="selectedPlan.id === 'QUARTERLY'"
+            [class.fa-crown]="selectedPlan.id === 'YEARLY'"></i>
         </div>
         <div class="summary-plan-info">
           <h3>{{ selectedPlan.name }}</h3>
@@ -221,8 +217,7 @@
       <div class="payment-methods">
         <div class="method-badge active">
           <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
-               onerror="this.src='https://via.placeholder.com/32x32?text=M'"
-               alt="MoMo" class="momo-icon">
+            onerror="this.src='https://via.placeholder.com/32x32?text=M'" alt="MoMo" class="momo-icon">
           <span>Ví MoMo</span>
           <i class="fas fa-check-circle"></i>
         </div>
@@ -250,10 +245,7 @@
 
       <div class="qr-wrapper" *ngIf="currentPayment">
         <div class="qr-container">
-          <img *ngIf="currentPayment.qrCodeUrl"
-               [src]="currentPayment.qrCodeUrl"
-               alt="MoMo QR Code"
-               class="qr-image">
+          <img *ngIf="currentPayment.qrCodeUrl" [src]="currentPayment.qrCodeUrl" alt="MoMo QR Code" class="qr-image">
           <div class="qr-placeholder" *ngIf="!currentPayment.qrCodeUrl">
             <i class="fas fa-qrcode"></i>
             <p>Mã QR không khả dụng</p>
@@ -332,7 +324,8 @@
           </div>
           <div class="detail-row">
             <span class="label">Trạng thái</span>
-            <span class="value"><span class="status-badge success"><i class="fas fa-check-circle"></i> Thành công</span></span>
+            <span class="value"><span class="status-badge success"><i class="fas fa-check-circle"></i> Thành
+                công</span></span>
           </div>
         </div>
         <div class="receipt-divider"></div>

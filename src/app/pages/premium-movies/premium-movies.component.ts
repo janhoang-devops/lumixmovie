@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Movie } from '../../models/movie.model';
 import { MovieService } from '../../services/movie.service';
 import { AuthService } from '../../services/auth.service';
@@ -43,6 +43,7 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   readonly PlanType = PlanType;
 
   constructor(
+    private route: ActivatedRoute,
     private movieService: MovieService,
     private authService: AuthService,
     private userService: UserService,
@@ -52,11 +53,43 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.handlePaymentRedirect();
     this.loadPremiumMovies();
   }
 
   ngOnDestroy(): void {
     this.stopStatusCheck();
+  }
+
+  // ==================== Payment Redirect Handler ====================
+
+  /** Đọc kết quả redirect từ MoMo (qua /payment-result) và hiện notification */
+  private handlePaymentRedirect(): void {
+    this.route.queryParams.subscribe(params => {
+      const payResult = params['payResult'];
+      if (!payResult) return;
+
+      // Xóa query param khỏi URL (tránh hiện lại khi F5)
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true
+      });
+
+      if (payResult === 'success') {
+        this.notification.show(
+          '🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!',
+          'success',
+          7000
+        );
+      } else {
+        this.notification.show(
+          '❌ Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại!',
+          'error',
+          6000
+        );
+      }
+    });
   }
 
   // ==================== Movie Loading ====================

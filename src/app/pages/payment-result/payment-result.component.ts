@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentService } from '../../services/payment.service';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { PaymentStatus } from '../../models/payment.model';
 
 @Component({
@@ -9,62 +11,63 @@ import { PaymentStatus } from '../../models/payment.model';
   styleUrls: ['./payment-result.component.scss']
 })
 export class PaymentResultComponent implements OnInit {
-  loading = true;
-  status: PaymentStatus | null = null;
-  orderId: string | null = null;
-  amount = 0;
-  orderInfo = '';
-  errorMessage = '';
-
-  PaymentStatus = PaymentStatus;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    // MoMo redirect về với query params: orderId, resultCode, message, ...
     this.route.queryParams.subscribe(params => {
-      this.orderId    = params['orderId']    || null;
+      const orderId    = params['orderId']    || null;
       const resultCode = Number(params['resultCode'] ?? -1);
-      this.orderInfo  = params['orderInfo']  || '';
-      this.amount     = Number(params['amount'] || 0);
 
-      if (!this.orderId) {
-        this.loading = false;
-        this.status = PaymentStatus.FAILED;
-        this.errorMessage = 'Không tìm thấy mã đơn hàng.';
+      if (!orderId) {
+        // Không có orderId → redirect về premium với trạng thái lỗi
+        this.redirectToPremium('failed');
         return;
       }
 
-      // Gọi API để lấy trạng thái chính thức từ backend
-      this.paymentService.checkPaymentStatus(this.orderId).subscribe({
+      // Gọi API lấy trạng thái chính thức từ backend
+      this.paymentService.checkPaymentStatus(orderId).subscribe({
         next: (payment) => {
-          this.status   = payment.status;
-          this.amount   = payment.amount;
-          this.orderInfo = payment.orderInfo || this.orderInfo;
-          this.loading  = false;
+          if (payment.status === PaymentStatus.SUCCESS) {
+            // Kích hoạt Premium trong localStorage ngay lập tức
+            this.authService.activatePremium();
+            // Đồng bộ premiumExpiredAt từ API user
+            const userId = this.authService.getUserId();
+            if (userId) {
+              this.userService.getUserById(userId).subscribe({
+                next: (user) => {
+                  this.authService.syncPremiumStatus(user.isPremium ?? false, user.premiumExpiredAt);
+                },
+                error: () => {}
+              });
+            }
+            this.redirectToPremium('success');
+          } else {
+            this.redirectToPremium('failed');
+          }
         },
         error: () => {
-          // Fallback: dùng resultCode từ MoMo param
-          this.status  = resultCode === 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
-          this.loading = false;
+          // Fallback dùng resultCode từ MoMo param
+          if (resultCode === 0) {
+            this.authService.activatePremium();
+            this.redirectToPremium('success');
+          } else {
+            this.redirectToPremium('failed');
+          }
         }
       });
     });
   }
 
-  goHome(): void {
-    this.router.navigate(['/home']);
-  }
-
-  goPremium(): void {
-    this.router.navigate(['/premium']);
-  }
-
-  formatPrice(p: number): string {
-    return p.toLocaleString('vi-VN') + 'đ';
+  private redirectToPremium(result: 'success' | 'failed'): void {
+    this.router.navigate(['/premium'], {
+      queryParams: { payResult: result }
+    });
   }
 }

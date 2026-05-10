@@ -16,6 +16,7 @@ import { UserUpdateComponent } from './components/user-update/user-update.compon
 import { LoginAdminComponent } from './components/login-admin/login-admin.component';
 import {CommentUpdateComponent} from "./components/comment-update/comment-update.component";
 import { GenreManagementComponent } from './components/genre-management/genre-management.component';
+import { OrderManagementComponent } from './components/order-management/order-management.component';
 import {NgChartsModule} from "ng2-charts";
 
 @NgModule({
@@ -32,7 +33,8 @@ import {NgChartsModule} from "ng2-charts";
     UserCreateComponent,
     UserUpdateComponent,
     LoginAdminComponent,
-    GenreManagementComponent
+    GenreManagementComponent,
+    OrderManagementComponent
   ],
   exports: [
     PromptMessageComponent

@@ -1,0 +1,370 @@
+// ==================== VARIABLES ====================
+$bg: #0f1117;
+$bg-card: #1a1d27;
+$bg-hover: #22263a;
+$border: rgba(255,255,255,0.07);
+$primary: #6366f1;
+$success: #22c55e;
+$warning: #f59e0b;
+$danger: #ef4444;
+$text: #e2e8f0;
+$muted: #64748b;
+$gold: #f59e0b;
+
+// ==================== PAGE ====================
+.order-page {
+  padding: 28px 32px;
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+  font-family: 'Inter', sans-serif;
+}
+
+// ==================== HEADER ====================
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    i { color: $primary; margin-right: 10px; }
+  }
+  p { color: $muted; font-size: 0.9rem; margin: 0; }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.realtime-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba($success, 0.1);
+  border: 1px solid rgba($success, 0.25);
+  color: $success;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: $success;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba($primary, 0.12);
+  border: 1px solid rgba($primary, 0.3);
+  color: $primary;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover:not(:disabled) { background: rgba($primary, 0.25); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ==================== STATS CARDS ====================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-3px); }
+
+  &.skeleton {
+    height: 84px;
+    animation: shimmer 1.5s linear infinite;
+    background: linear-gradient(90deg, $bg-card 25%, lighten($bg-card, 5%) 50%, $bg-card 75%);
+    background-size: 200% 100%;
+  }
+
+  &.total    { border-color: rgba($primary, 0.25); .stat-icon { background: rgba($primary, 0.12); color: $primary; } }
+  &.success  { border-color: rgba($success, 0.25); .stat-icon { background: rgba($success, 0.12); color: $success; } }
+  &.pending  { border-color: rgba($warning, 0.25); .stat-icon { background: rgba($warning, 0.12); color: $warning; } }
+  &.failed   { border-color: rgba($danger,  0.25); .stat-icon { background: rgba($danger,  0.12); color: $danger;  } }
+  &.revenue  { border-color: rgba($gold,    0.25); .stat-icon { background: rgba($gold,    0.12); color: $gold;    } }
+
+  .stat-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+
+  .stat-value { display: block; font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+  .stat-label { font-size: 0.78rem; color: $muted; text-transform: uppercase; letter-spacing: 0.5px; }
+}
+
+// ==================== FILTER BAR ====================
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: $muted; font-size: 0.9rem; }
+  }
+
+  .search-input {
+    width: 100%;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text;
+    padding: 10px 14px 10px 38px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    &:focus { border-color: rgba($primary, 0.5); }
+    &::placeholder { color: $muted; }
+  }
+
+  .filter-select {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    option { background: $bg-card; }
+    &:focus { border-color: rgba($primary, 0.5); }
+  }
+
+  .clear-btn {
+    background: rgba($danger, 0.1);
+    border: 1px solid rgba($danger, 0.3);
+    color: $danger;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    &:hover { background: rgba($danger, 0.2); }
+  }
+
+  .result-count {
+    color: $muted;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+}
+
+// ==================== TABLE ====================
+.table-wrap {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: rgba(255,255,255,0.03);
+    th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: $muted;
+      border-bottom: 1px solid $border;
+      white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s;
+    &:last-child { border-bottom: none; }
+    &:hover { background: $bg-hover; }
+  }
+
+  td {
+    padding: 13px 16px;
+    font-size: 0.88rem;
+    vertical-align: middle;
+  }
+}
+
+.col-no { color: $muted; font-size: 0.8rem; width: 40px; }
+.col-orderid code {
+  background: rgba(255,255,255,0.06);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: $primary;
+  cursor: help;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .username { font-weight: 600; font-size: 0.88rem; }
+  .email    { font-size: 0.75rem; color: $muted; }
+}
+
+.plan-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  &.plan-monthly   { background: rgba($primary, 0.15); color: $primary; }
+  &.plan-quarterly { background: rgba($warning, 0.15); color: $warning; }
+  &.plan-yearly    { background: rgba($gold,    0.15); color: $gold;    }
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  &.status-success { background: rgba($success, 0.12); color: $success; border: 1px solid rgba($success, 0.2); }
+  &.status-pending { background: rgba($warning, 0.12); color: $warning; border: 1px solid rgba($warning, 0.2); }
+  &.status-failed  { background: rgba($danger,  0.12); color: $danger;  border: 1px solid rgba($danger,  0.2); }
+}
+
+.trans-id { font-size: 0.8rem; color: $muted; font-family: monospace; }
+
+// ==================== EMPTY STATE ====================
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: $muted;
+  i { font-size: 3rem; margin-bottom: 16px; display: block; opacity: 0.5; }
+  p { margin-bottom: 16px; }
+}
+
+// ==================== LOADING / ERROR ====================
+.loading-box {
+  text-align: center;
+  padding: 60px 20px;
+  color: $muted;
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid rgba($primary, 0.2);
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+}
+
+.error-box {
+  background: rgba($danger, 0.08);
+  border: 1px solid rgba($danger, 0.25);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: $danger;
+  margin-bottom: 20px;
+  i { font-size: 1.2rem; }
+  span { flex: 1; }
+  button {
+    background: rgba($danger, 0.15); border: 1px solid rgba($danger, 0.3);
+    color: $danger; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  }
+}
+
+// ==================== PAGINATION ====================
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px;
+  border-top: 1px solid $border;
+  flex-wrap: wrap;
+
+  .page-btn {
+    width: 36px; height: 36px;
+    background: transparent;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    &:hover:not(:disabled) { border-color: $primary; color: $primary; }
+    &.active { background: $primary; border-color: $primary; color: #fff; font-weight: 700; }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  .page-ellipsis { color: $muted; padding: 0 4px; }
+  .page-info { font-size: 0.82rem; color: $muted; margin-left: 8px; }
+}
+
+// ==================== ANIMATIONS ====================
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+// ==================== RESPONSIVE ====================
+@media (max-width: 768px) {
+  .order-page { padding: 16px; }
+  .order-table { font-size: 0.82rem; }
+  .col-transid, .col-orderid { display: none; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}

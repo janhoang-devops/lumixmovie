@@ -13,6 +13,7 @@ import {UserUpdateComponent} from "./components/user-update/user-update.componen
 import {LoginAdminComponent} from "./components/login-admin/login-admin.component";
 import {AdminGuard} from "../guards/admin.guard";
 import {GenreManagementComponent} from "./components/genre-management/genre-management.component";
+import {OrderManagementComponent} from "./components/order-management/order-management.component";
 
 const routes: Routes = [
   { path: "login", component: LoginAdminComponent, title: "Lumix Admin – Đăng nhập" },
@@ -30,6 +31,7 @@ const routes: Routes = [
       { path: 'users/update', component: UserUpdateComponent, canDeactivate: [UnsavedChangesGuard], title: 'Lumix Admin – Cập nhật người dùng' },
       { path: 'comments', component: CommentManagementComponent, title: 'Lumix Admin – Quản lý bình luận' },
       { path: 'genres', component: GenreManagementComponent, title: 'Lumix Admin – Quản lý thể loại' },
+      { path: 'orders', component: OrderManagementComponent, title: 'Lumix Admin – Quản lý đơn hàng' },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]
   },

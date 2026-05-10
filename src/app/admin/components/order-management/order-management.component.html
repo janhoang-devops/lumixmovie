@@ -1,0 +1,204 @@
+<div class="order-page">
+
+  <!-- ======== PAGE HEADER ======== -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1><i class="fas fa-receipt"></i> Quản Lý Đơn Hàng</h1>
+      <p>Theo dõi toàn bộ giao dịch & doanh thu Premium</p>
+    </div>
+    <div class="header-actions">
+      <div class="realtime-badge">
+        <span class="pulse-dot"></span>
+        Real-time
+      </div>
+      <button class="refresh-btn" (click)="loadAll()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Làm mới
+      </button>
+    </div>
+  </div>
+
+  <!-- ======== STATS CARDS ======== -->
+  <div class="stats-grid" *ngIf="!statsLoading && stats">
+    <div class="stat-card total">
+      <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.totalOrders }}</span>
+        <span class="stat-label">Tổng đơn</span>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.successOrders }}</span>
+        <span class="stat-label">Thành công</span>
+      </div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-icon"><i class="fas fa-clock"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.pendingOrders }}</span>
+        <span class="stat-label">Chờ xử lý</span>
+      </div>
+    </div>
+    <div class="stat-card failed">
+      <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.failedOrders }}</span>
+        <span class="stat-label">Thất bại</span>
+      </div>
+    </div>
+    <div class="stat-card revenue">
+      <div class="stat-icon"><i class="fas fa-coins"></i></div>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatPrice(stats.totalRevenue) }}</span>
+        <span class="stat-label">Doanh thu</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats loading skeleton -->
+  <div class="stats-grid" *ngIf="statsLoading">
+    <div class="stat-card skeleton" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- ======== FILTERS ======== -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Tìm theo orderId, username, email..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        class="search-input"
+      >
+    </div>
+
+    <select class="filter-select" [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)">
+      <option value="ALL">Tất cả trạng thái</option>
+      <option value="SUCCESS">Thành công</option>
+      <option value="PENDING">Chờ xử lý</option>
+      <option value="FAILED">Thất bại</option>
+    </select>
+
+    <select class="filter-select" [ngModel]="planFilter" (ngModelChange)="onPlanChange($event)">
+      <option value="ALL">Tất cả gói</option>
+      <option value="MONTHLY">Gói Tháng</option>
+      <option value="QUARTERLY">Gói Quý</option>
+      <option value="YEARLY">Gói Năm</option>
+    </select>
+
+    <button class="clear-btn" (click)="clearFilters()" *ngIf="statusFilter !== 'ALL' || planFilter !== 'ALL' || searchQuery">
+      <i class="fas fa-times"></i> Xóa bộ lọc
+    </button>
+
+    <span class="result-count">
+      {{ filteredOrders.length }} đơn hàng
+    </span>
+  </div>
+
+  <!-- ======== ERROR ======== -->
+  <div class="error-box" *ngIf="error && !loading">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button (click)="loadAll()">Thử lại</button>
+  </div>
+
+  <!-- ======== LOADING ======== -->
+  <div class="loading-box" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu đơn hàng...</p>
+  </div>
+
+  <!-- ======== TABLE ======== -->
+  <div class="table-wrap" *ngIf="!loading && !error">
+
+    <table class="order-table" *ngIf="pagedOrders.length > 0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Mã đơn</th>
+          <th>Người dùng</th>
+          <th>Gói</th>
+          <th>Số tiền</th>
+          <th>Trạng thái</th>
+          <th>Mã GD MoMo</th>
+          <th>Thời gian</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of pagedOrders; let i = index" class="order-row">
+          <td class="col-no">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+          <td class="col-orderid">
+            <code [title]="order.orderId">{{ shortOrderId(order.orderId) }}</code>
+          </td>
+          <td class="col-user">
+            <div class="user-cell">
+              <div class="user-avatar">{{ (order.username || '?').charAt(0).toUpperCase() }}</div>
+              <div>
+                <div class="username">{{ order.username || '—' }}</div>
+                <div class="email">{{ order.userEmail || '—' }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="col-plan">
+            <span class="plan-badge" [class]="'plan-' + (order.planType | lowercase)">
+              {{ getPlanLabel(order.planType) }}
+            </span>
+          </td>
+          <td class="col-amount">
+            <strong>{{ formatPrice(order.amount) }}</strong>
+          </td>
+          <td class="col-status">
+            <span class="status-chip" [ngClass]="getStatusClass(order.status)">
+              <i class="fas"
+                 [class.fa-check]="order.status === PaymentStatus.SUCCESS"
+                 [class.fa-clock]="order.status === PaymentStatus.PENDING"
+                 [class.fa-times]="order.status === PaymentStatus.FAILED"></i>
+              {{ STATUS_LABELS[order.status] }}
+            </span>
+          </td>
+          <td class="col-transid">
+            <span class="trans-id">{{ order.transId || '—' }}</span>
+          </td>
+          <td class="col-date">{{ formatDate(order.createdAt) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="pagedOrders.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>Không tìm thấy đơn hàng nào</p>
+      <button class="clear-btn" (click)="clearFilters()">Xóa bộ lọc</button>
+    </div>
+
+    <!-- ======== PAGINATION ======== -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <ng-container *ngFor="let p of pageNumbers">
+        <button class="page-btn"
+                [class.active]="p === currentPage"
+                (click)="goToPage(p)"
+                *ngIf="p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)">
+          {{ p }}
+        </button>
+        <span class="page-ellipsis"
+              *ngIf="(p === currentPage - 3 && p > 1) || (p === currentPage + 3 && p < totalPages)">
+          ...
+        </span>
+      </ng-container>
+
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <span class="page-info">Trang {{ currentPage }} / {{ totalPages }}</span>
+    </div>
+  </div>
+
+</div>

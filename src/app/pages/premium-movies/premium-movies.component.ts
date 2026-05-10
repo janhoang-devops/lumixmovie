@@ -79,6 +79,18 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
       });
 
       if (resultCode === '0') {
+        // Chủ động gọi backend để kích hoạt Query trạng thái (rất quan trọng khi test ở localhost vì mất IPN)
+        if (orderId) {
+          this.paymentService.checkPaymentStatus(orderId).subscribe({
+            next: (payment) => {
+              if (payment.status === PaymentStatus.SUCCESS) {
+                console.log('✅ Backend đã đồng bộ trạng thái SUCCESS');
+              }
+            },
+            error: () => console.log('⚠️ Không thể đồng bộ trạng thái với backend')
+          });
+        }
+
         // Cập nhật local auth status
         this.authService.activatePremium();
         const userId = this.authService.getUserId();

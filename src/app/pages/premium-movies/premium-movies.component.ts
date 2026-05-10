@@ -63,11 +63,13 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
 
   // ==================== Payment Redirect Handler ====================
 
-  /** Đọc kết quả redirect từ MoMo (qua /payment-result) và hiện notification */
+  /** Đọc kết quả redirect từ MoMo (qua return-url) và hiện notification */
   private handlePaymentRedirect(): void {
     this.route.queryParams.subscribe(params => {
-      const payResult = params['payResult'];
-      if (!payResult) return;
+      const resultCode = params['resultCode'];
+      const orderId = params['orderId'];
+      
+      if (!resultCode) return;
 
       // Xóa query param khỏi URL (tránh hiện lại khi F5)
       this.router.navigate([], {
@@ -76,7 +78,18 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
         replaceUrl: true
       });
 
-      if (payResult === 'success') {
+      if (resultCode === '0') {
+        // Cập nhật local auth status
+        this.authService.activatePremium();
+        const userId = this.authService.getUserId();
+        if (userId) {
+          this.userService.getUserById(userId).subscribe({
+            next: (user) => {
+              this.authService.syncPremiumStatus(user.isPremium ?? false, user.premiumExpiredAt);
+            },
+            error: () => {}
+          });
+        }
         this.notification.show(
           '🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!',
           'success',

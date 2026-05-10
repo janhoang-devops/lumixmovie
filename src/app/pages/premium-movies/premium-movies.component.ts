@@ -66,6 +66,7 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   /** Đọc kết quả redirect từ MoMo (qua return-url) và hiện notification */
   private handlePaymentRedirect(): void {
     this.route.queryParams.subscribe(params => {
+      console.log('Momo Redirect Params:', params);
       const resultCode = params['resultCode'];
       const orderId = params['orderId'];
       

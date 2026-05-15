@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { PaymentService } from '../../services/payment.service';
 import { NotificationService } from '../../services/notification.service';
+import { Subscription } from 'rxjs';
 import {
   PaymentResponse,
   PaymentStatus,
@@ -39,14 +40,13 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   private statusCheckInterval: any;
   private checkCount = 0;
   private readonly MAX_CHECKS = 60;
+  private premiumSub!: Subscription;
 
   readonly PlanType = PlanType;
 
-  // ==================== Premium Status ====================
-  /** Kiểm tra user hiện tại có phải hội viên Premium không */
-  get isPremiumUser(): boolean {
-    return this.authService.isPremium();
-  }
+  // ==================== Premium Status (Reactive) ====================
+  /** Trạng thái hội viên – cập nhật tự động khi BehaviorSubject emit */
+  isPremiumUser = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -59,12 +59,17 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe vào isPremium$ – tự động update khi startup sync hoàn tất
+    this.premiumSub = this.authService.isPremium$.subscribe(val => {
+      this.isPremiumUser = val;
+    });
     this.handlePaymentRedirect();
     this.loadPremiumMovies();
   }
 
   ngOnDestroy(): void {
     this.stopStatusCheck();
+    this.premiumSub?.unsubscribe();
   }
 
   // ==================== Payment Redirect Handler ====================

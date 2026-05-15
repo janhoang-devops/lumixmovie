@@ -4,6 +4,8 @@ export interface LoginResponse {
     userId: string;
     username: string;
     role: string[];
+    isPremium?: boolean;
+    premiumExpiredAt?: string;
   };
 }
 

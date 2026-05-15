@@ -74,6 +74,98 @@
           </span>
         </div>
       </div>
+
+      <!-- Orders Card (thống kê đơn hàng) -->
+      <div class="stat-card orders-card" (click)="navigateToOrders()">
+        <div class="stat-icon">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Tổng đơn hàng</h3>
+          <p class="stat-number">{{ orderStats ? orderStats.totalOrders : '...' }}</p>
+          <span class="stat-growth positive" *ngIf="orderStats">
+            <i class="fas fa-check-circle"></i>
+            {{ orderStats.successOrders }} thành công
+          </span>
+          <span class="stat-growth" *ngIf="!orderStats && !orderStatsLoading">&mdash;</span>
+          <span class="stat-growth" *ngIf="orderStatsLoading"><i class="fas fa-spinner fa-spin"></i></span>
+        </div>
+      </div>
+
+      <!-- Revenue Card (doanh thu) -->
+      <div class="stat-card revenue-card" (click)="navigateToOrders()">
+        <div class="stat-icon">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Doanh thu</h3>
+          <p class="stat-number revenue-num">{{ orderStats ? formatRevenue(orderStats.totalRevenue) : '...' }}</p>
+          <span class="stat-growth positive" *ngIf="orderStats && orderStats.pendingOrders > 0">
+            <i class="fas fa-clock"></i>
+            {{ orderStats.pendingOrders }} chờ xử lý
+          </span>
+          <span class="stat-growth positive" *ngIf="orderStats && orderStats.pendingOrders === 0">
+            <i class="fas fa-check-double"></i>
+            Không có đơn chờ
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Statistics Summary Section -->
+    <div class="order-stats-section" *ngIf="orderStats">
+      <div class="order-stats-header">
+        <h3><i class="fas fa-chart-line"></i> Thống Kê Đơn Hàng &amp; Doanh Thu</h3>
+        <button class="view-orders-btn" (click)="navigateToOrders()">
+          <i class="fas fa-external-link-alt"></i> Xem chi tiết
+        </button>
+      </div>
+      <div class="order-stats-grid">
+        <div class="order-stat-item total">
+          <div class="osi-icon"><i class="fas fa-list-alt"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Tổng đơn</span>
+            <span class="osi-value">{{ orderStats.totalOrders }}</span>
+          </div>
+        </div>
+        <div class="order-stat-item success">
+          <div class="osi-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Thành công</span>
+            <span class="osi-value">{{ orderStats.successOrders }}</span>
+          </div>
+        </div>
+        <div class="order-stat-item pending">
+          <div class="osi-icon"><i class="fas fa-hourglass-half"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Chờ xử lý</span>
+            <span class="osi-value">{{ orderStats.pendingOrders }}</span>
+          </div>
+        </div>
+        <div class="order-stat-item failed">
+          <div class="osi-icon"><i class="fas fa-times-circle"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Thất bại</span>
+            <span class="osi-value">{{ orderStats.failedOrders }}</span>
+          </div>
+        </div>
+        <div class="order-stat-item revenue">
+          <div class="osi-icon"><i class="fas fa-coins"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Doanh thu</span>
+            <span class="osi-value revenue-val">{{ formatRevenue(orderStats.totalRevenue) }}</span>
+          </div>
+        </div>
+        <div class="order-stat-item rate">
+          <div class="osi-icon"><i class="fas fa-percentage"></i></div>
+          <div class="osi-info">
+            <span class="osi-label">Tỉ lệ thành công</span>
+            <span class="osi-value rate-val">
+              {{ orderStats.totalOrders > 0 ? ((orderStats.successOrders / orderStats.totalOrders) * 100).toFixed(1) : '0' }}%
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Charts Section -->

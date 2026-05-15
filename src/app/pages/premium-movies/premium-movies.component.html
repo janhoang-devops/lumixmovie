@@ -3,36 +3,66 @@
 <div class="premium-page">
 
   <!-- ===================== HERO ===================== -->
-  <section class="premium-hero">
+  <section class="premium-hero" [class.hero-premium-active]="isPremiumUser">
     <div class="hero-orbs">
       <div class="orb orb-1"></div>
       <div class="orb orb-2"></div>
       <div class="orb orb-3"></div>
     </div>
     <div class="hero-content">
-      <div class="hero-badge">
-        <i class="fas fa-crown"></i>
-        <span>LUMIX PREMIUM</span>
+      <!-- Banner hội viên đã đăng ký -->
+      <div class="premium-member-banner" *ngIf="isPremiumUser">
+        <div class="member-badge">
+          <i class="fas fa-crown"></i>
+          <span>HỘI VIÊN PREMIUM</span>
+        </div>
+        <h1 class="hero-title">Chào Mừng, Hội Viên Premium!</h1>
+        <p class="hero-subtitle">Bạn đã mở khóa toàn bộ kho phim Premium.
+          Hãy tận hưởng trải nghiệm xem phim chất lượng 4K không giới hạn!</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">{{ premiumMovies.length }}+</span>
+            <span class="stat-label">Phim đã mở khóa</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">4K</span>
+            <span class="stat-label">Chất lượng</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">Không giới hạn</span>
+          </div>
+        </div>
       </div>
-      <h1 class="hero-title">Trải Nghiệm Không Giới Hạn</h1>
-      <p class="hero-subtitle">Đăng ký gói hội viên để xem toàn bộ kho phim premium chất lượng 4K,
-        không quảng cáo, trên mọi thiết bị</p>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-num">{{ premiumMovies.length }}+</span>
-          <span class="stat-label">Phim Premium</span>
+
+      <!-- Hero bình thường (chưa đăng ký) -->
+      <ng-container *ngIf="!isPremiumUser">
+        <div class="hero-badge">
+          <i class="fas fa-crown"></i>
+          <span>LUMIX PREMIUM</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">4K</span>
-          <span class="stat-label">Chất lượng</span>
+        <h1 class="hero-title">Trải Nghiệm Không Giới Hạn</h1>
+        <p class="hero-subtitle">Đăng ký gói hội viên để xem toàn bộ kho phim premium chất lượng 4K,
+          không quảng cáo, trên mọi thiết bị</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">{{ premiumMovies.length }}+</span>
+            <span class="stat-label">Phim Premium</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">4K</span>
+            <span class="stat-label">Chất lượng</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">Không giới hạn</span>
+          </div>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">∞</span>
-          <span class="stat-label">Không giới hạn</span>
-        </div>
-      </div>
+      </ng-container>
     </div>
     <!-- Floating movie posters -->
     <div class="hero-posters" *ngIf="!loading && premiumMovies.length > 0">
@@ -45,7 +75,8 @@
   </section>
 
   <!-- ===================== SUBSCRIPTION PLANS ===================== -->
-  <section class="plans-section">
+  <!-- Ẩn section đăng ký khi user đã là hội viên -->
+  <section class="plans-section" *ngIf="!isPremiumUser">
     <div class="section-header">
       <h2><i class="fas fa-gem"></i> Chọn Gói Hội Viên</h2>
       <p>Thanh toán an toàn qua ví MoMo · Hủy bất cứ lúc nào</p>
@@ -85,23 +116,60 @@
     </div>
   </section>
 
-  <!-- ===================== PREMIUM MOVIES PREVIEW ===================== -->
+  <!-- Banner hội viên đã đăng ký -->
+  <section class="member-status-section" *ngIf="isPremiumUser">
+    <div class="member-status-card">
+      <div class="member-status-icon">
+        <i class="fas fa-crown"></i>
+      </div>
+      <div class="member-status-info">
+        <h3>Bạn đang là Hội Viên Premium <span class="active-badge">✔ Hoạt động</span></h3>
+        <p>Tận hưởng toàn bộ nội dung Premium không giới hạn. Click vào bất kỳ bộ phim nào bên dưới để xem ngay!</p>
+      </div>
+      <div class="member-status-sparkle">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PREMIUM MOVIES ===================== -->
   <section class="movies-section" *ngIf="!loading && !error">
     <div class="section-header">
-      <h2><i class="fas fa-film"></i> Phim Có Sẵn Cho Hội Viên</h2>
-      <p>Đăng ký để xem toàn bộ {{ premiumMovies.length }}+ phim premium dưới đây</p>
+      <h2>
+        <i class="fas fa-film"></i>
+        <span *ngIf="isPremiumUser">Phim Premium – Đã Mở Khóa</span>
+        <span *ngIf="!isPremiumUser">Phim Có Sẵn Cho Hội Viên</span>
+      </h2>
+      <p *ngIf="isPremiumUser">Click vào bất kỳ bộ phim nào để xem ngay!</p>
+      <p *ngIf="!isPremiumUser">Đăng ký để xem toàn bộ {{ premiumMovies.length }}+ phim premium dưới đây</p>
     </div>
 
     <div class="movies-grid">
-      <div class="movie-card" *ngFor="let movie of premiumMovies">
+      <div class="movie-card" *ngFor="let movie of premiumMovies" [class.unlocked]="isPremiumUser"
+        (click)="isPremiumUser ? watchMovie(movie) : null" [style.cursor]="isPremiumUser ? 'pointer' : 'default'">
         <div class="card-poster">
           <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy">
-          <div class="card-overlay">
+
+          <!-- Overlay khi chưa đăng ký -->
+          <div class="card-overlay locked-overlay" *ngIf="!isPremiumUser">
             <div class="overlay-lock">
               <i class="fas fa-lock"></i>
               <span>Hội Viên Premium</span>
             </div>
           </div>
+
+          <!-- Overlay khi đã đăng ký -->
+          <div class="card-overlay unlocked-overlay" *ngIf="isPremiumUser">
+            <div class="overlay-play">
+              <div class="play-btn-circle">
+                <i class="fas fa-play"></i>
+              </div>
+              <span>Xem ngay</span>
+            </div>
+          </div>
+
           <div class="badge-vip"><i class="fas fa-crown"></i> VIP</div>
           <div class="badge-rating" *ngIf="movie.rating">
             <i class="fas fa-star"></i> {{ movie.rating }}
@@ -116,6 +184,10 @@
             <span class="dot" *ngIf="movie.genres && movie.genres.length > 0">•</span>
             <span class="genre" *ngIf="movie.genres && movie.genres.length > 0">{{ movie.genres[0].name }}</span>
           </div>
+          <!-- Nút xem ngay chỉ hiện khi đã là hội viên -->
+          <button class="watch-btn" *ngIf="isPremiumUser" (click)="$event.stopPropagation(); watchMovie(movie)">
+            <i class="fas fa-play"></i> Xem phim
+          </button>
         </div>
       </div>
     </div>

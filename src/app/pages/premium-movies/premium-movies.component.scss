@@ -199,6 +199,73 @@ $border: rgba(168, 85, 247, 0.15);
   }
 }
 
+// ===================== MEMBER STATUS SECTION =====================
+.member-status-section {
+  padding: 0 60px 40px;
+}
+
+.member-status-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: linear-gradient(135deg, rgba($primary, 0.12), rgba($gold, 0.08));
+  border: 1px solid rgba($gold, 0.35);
+  border-radius: 20px;
+  padding: 28px 36px;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba($gold, 0.1);
+
+  .member-status-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $gold, #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba($gold, 0.4);
+    animation: pulse 2.5s ease-in-out infinite;
+    i { font-size: 2rem; color: #fff; }
+  }
+
+  .member-status-info {
+    flex: 1;
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+      color: $text-primary;
+      .active-badge {
+        display: inline-block;
+        margin-left: 10px;
+        background: rgba(#22c55e, 0.15);
+        color: #22c55e;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(#22c55e, 0.3);
+        vertical-align: middle;
+      }
+    }
+    p { color: $text-muted; font-size: 0.9rem; margin: 0; line-height: 1.6; }
+  }
+
+  .member-status-sparkle {
+    display: flex;
+    gap: 6px;
+    i {
+      color: $gold;
+      font-size: 1.2rem;
+      animation: starTwinkle 1.8s ease-in-out infinite;
+      &:nth-child(2) { animation-delay: 0.6s; }
+      &:nth-child(3) { animation-delay: 1.2s; }
+    }
+  }
+}
+
 // ===================== MOVIES GRID =====================
 .movies-section {
   padding: 20px 60px 60px;
@@ -222,11 +289,21 @@ $border: rgba(168, 85, 247, 0.15);
     box-shadow: 0 16px 40px rgba(0,0,0,0.4);
   }
 
+  // Card đã mở khóa – viền vàng khi hover
+  &.unlocked {
+    border-color: rgba($gold, 0.2);
+    &:hover {
+      border-color: rgba($gold, 0.5);
+      box-shadow: 0 16px 40px rgba($gold, 0.15);
+    }
+  }
+
   .card-poster {
     position: relative;
     img { width: 100%; height: 240px; object-fit: cover; display: block; }
 
-    .card-overlay {
+    // Overlay khoá (chưa Premium)
+    .locked-overlay {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0.75);
       display: flex; align-items: center; justify-content: center;
@@ -237,7 +314,32 @@ $border: rgba(168, 85, 247, 0.15);
         span { font-size: 0.8rem; }
       }
     }
-    &:hover .card-overlay { opacity: 1; }
+    &:hover .locked-overlay { opacity: 1; }
+
+    // Overlay mở khoá (đã Premium) – hiện play button
+    .unlocked-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s;
+      .overlay-play {
+        text-align: center; color: #fff;
+        .play-btn-circle {
+          width: 60px; height: 60px; border-radius: 50%;
+          background: rgba($gold, 0.9);
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 10px;
+          box-shadow: 0 0 20px rgba($gold, 0.6);
+          transition: transform 0.2s;
+          i { font-size: 1.4rem; color: #000; margin-left: 4px; }
+        }
+        span { font-size: 0.85rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+      }
+    }
+    &:hover .unlocked-overlay {
+      opacity: 1;
+      .play-btn-circle { transform: scale(1.1); }
+    }
 
     .badge-vip {
       position: absolute; top: 8px; left: 8px;
@@ -259,6 +361,18 @@ $border: rgba(168, 85, 247, 0.15);
       display: flex; gap: 6px; flex-wrap: wrap;
       font-size: 0.75rem; color: $text-muted;
       .dot { color: rgba(255,255,255,0.2); }
+    }
+    // Nút xem phim
+    .watch-btn {
+      width: 100%; margin-top: 10px;
+      padding: 9px 12px;
+      background: linear-gradient(135deg, $gold, #d97706);
+      border: none; border-radius: 8px;
+      color: #000; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s;
+      i { font-size: 0.75rem; }
+      &:hover { opacity: 0.9; transform: scale(1.02); }
     }
   }
 }
@@ -574,6 +688,10 @@ $border: rgba(168, 85, 247, 0.15);
 @keyframes dotBounce {
   0%, 80%, 100% { transform: translateY(0); }
   40% { transform: translateY(-8px); }
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
 }
 
 // ===================== RESPONSIVE =====================

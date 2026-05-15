@@ -6,6 +6,8 @@ import {NotificationService} from "../../../services/notification.service";
 import {forkJoin} from "rxjs";
 import {Router} from "@angular/router";
 import {ChartConfiguration, ChartData} from 'chart.js';
+import {PaymentAdminService} from "../../../services/payment-admin.service";
+import {PaymentStatsResponse} from "../../../models/payment-admin.model";
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -22,6 +24,10 @@ export class AdminDashboardComponent implements OnInit {
   usersGrowth: number = 0;
   commentsGrowth: number = 0;
   categoriesGrowth: number = 0;
+
+  // Thống kê đơn hàng
+  orderStats: PaymentStatsResponse | null = null;
+  orderStatsLoading = true;
 
   isLoading: boolean = true;
 
@@ -303,7 +309,8 @@ export class AdminDashboardComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private notification: NotificationService,
-    private router: Router
+    private router: Router,
+    private paymentAdminService: PaymentAdminService
   ) {}
 
   ngOnInit(): void {
@@ -328,7 +335,7 @@ export class AdminDashboardComponent implements OnInit {
         this.moviesGrowth = (Math.random() - 0.4) * 20;
         this.usersGrowth = (Math.random() - 0.5) * 10;
         this.commentsGrowth = (Math.random() - 0.2) * 30;
-        this.categoriesGrowth = (Math.random() - 0.3) * 15; // Thêm growth cho categories
+        this.categoriesGrowth = (Math.random() - 0.3) * 15;
 
         // Xử lý dữ liệu cho các biểu đồ
         this.processMoviesByGenre(movies);
@@ -341,6 +348,17 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Error loading dashboard data:', err);
         this.isLoading = false;
         this.notification.show("Không thể tải dữ liệu cho trang quản trị!", 'error');
+      }
+    });
+
+    // Load order stats độc lập
+    this.paymentAdminService.getStats().subscribe({
+      next: (stats) => {
+        this.orderStats = stats;
+        this.orderStatsLoading = false;
+      },
+      error: () => {
+        this.orderStatsLoading = false;
       }
     });
   }
@@ -481,5 +499,17 @@ export class AdminDashboardComponent implements OnInit {
 
   navigateToCategories() {
     this.router.navigate(['/admin/genres']);
+  }
+
+  navigateToOrders() {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  formatRevenue(amount: number): string {
+    if (!amount) return '0đ';
+    if (amount >= 1_000_000) {
+      return (amount / 1_000_000).toFixed(1) + 'Mđ';
+    }
+    return amount.toLocaleString('vi-VN') + 'đ';
   }
 }

@@ -42,6 +42,12 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
 
   readonly PlanType = PlanType;
 
+  // ==================== Premium Status ====================
+  /** Kiểm tra user hiện tại có phải hội viên Premium không */
+  get isPremiumUser(): boolean {
+    return this.authService.isPremium();
+  }
+
   constructor(
     private route: ActivatedRoute,
     private movieService: MovieService,
@@ -268,5 +274,19 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
 
   browsePremiumMovies(): void {
     this.closePaymentModal();
+  }
+
+  /** Điều hướng tới trang xem phim (chỉ cho Premium users) */
+  watchMovie(movie: Movie): void {
+    if (!this.authService.isLoggedIn()) {
+      this.notification.show('Vui lòng đăng nhập để xem phim!', 'warning');
+      this.router.navigate(['/login']);
+      return;
+    }
+    if (!this.authService.isPremium()) {
+      this.notification.show('🔒 Bạn cần đăng ký gói Premium để xem phim này!', 'warning');
+      return;
+    }
+    this.router.navigate(['/movies', movie.id]);
   }
 }

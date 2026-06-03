@@ -73,8 +73,8 @@ export class MovieDetailComponent implements OnInit {
         return this.movieService.getMoviesByGenreName(`${primaryGenre}`).pipe(
           catchError(() => of([])),
           map(relatedData => {
-
-            return {movie: movieData, related: relatedData};
+            const filteredRelated = relatedData.filter(movie => movie.id !== movieData.id);
+            return {movie: movieData, related: filteredRelated};
           })
         );
       })

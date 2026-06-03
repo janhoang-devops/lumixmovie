@@ -43,7 +43,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: PlanType.MONTHLY,
     name: 'Gói Tháng',
-    price: 59000,
+    price: 19000,
     duration: '1 tháng',
     features: [
       'Xem không giới hạn phim Premium',
@@ -55,7 +55,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: PlanType.QUARTERLY,
     name: 'Gói 3 Tháng',
-    price: 129000,
+    price: 29000,
     duration: '3 tháng',
     badge: 'Tiết kiệm 27%',
     popular: true,
@@ -70,7 +70,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: PlanType.YEARLY,
     name: 'Gói Năm',
-    price: 499000,
+    price: 99000,
     duration: '12 tháng',
     badge: 'Tiết kiệm 30%',
     features: [

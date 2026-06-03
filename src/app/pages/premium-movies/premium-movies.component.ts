@@ -80,7 +80,7 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
       console.log('Momo Redirect Params:', params);
       const resultCode = params['resultCode'];
       const orderId = params['orderId'];
-      
+
       if (!resultCode) return;
 
       // Xóa query param khỏi URL (tránh hiện lại khi F5)
@@ -115,13 +115,13 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
           });
         }
         this.notification.show(
-          '🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!',
+          'Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!',
           'success',
           7000
         );
       } else {
         this.notification.show(
-          '❌ Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại!',
+          'Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại!',
           'error',
           6000
         );
@@ -214,7 +214,6 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
   }
 
   // ==================== Status Polling ====================
-
   private startStatusCheck(orderId: string): void {
     this.checkCount = 0;
     this.stopStatusCheck();
@@ -243,7 +242,7 @@ export class PremiumMoviesComponent implements OnInit, OnDestroy {
                 error: () => {}
               });
             }
-            this.notification.show('🎉 Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!', 'success');
+            this.notification.show('Kích hoạt hội viên thành công! Chào mừng bạn đến với Lumix Premium!', 'success');
           } else if (payment.status === PaymentStatus.FAILED) {
             this.stopStatusCheck();
             this.currentPayment = payment;
